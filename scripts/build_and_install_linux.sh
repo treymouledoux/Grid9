@@ -27,7 +27,7 @@ if [[ $PACKAGE_MANAGER == "apt-get" ]]; then
     nimble install parsetoml -y
 
     echo "Compiling Grid9 and Grid9Converter... (2/5)"
-    git clone https://github.com/MrEnder0/Grid9
+    git clone https://github.com/treymouledoux/Grid9
     cd Grid9/src
     mv main.nim grid9.nim
     nim c -d:release grid9
@@ -67,7 +67,7 @@ elif [[ $PACKAGE_MANAGER == "pacman" ]]; then
     nimble install parsetoml -y
 
     echo "Compiling Grid9 and Grid9Converter... (2/5)"
-    git clone https://github.com/MrEnder0/Grid9
+    git clone https://github.com/treymouledoux/Grid9
     cd Grid9/src
     mv main.nim grid9.nim
     nim c -d:release grid9
@@ -105,7 +105,7 @@ elif [[ $PACKAGE_MANAGER == "apk" ]]; then
     nimble install parsetoml -y
 
     echo "Compiling Grid9 and Grid9Converter... (2/5)"
-    git clone https://github.com/MrEnder0/Grid9
+    git clone https://github.com/treymouledoux/Grid9
     cd Grid9/src
     mv main.nim grid9.nim
     nim c -d:release grid9

@@ -4,9 +4,9 @@ Grid9 is an esoteric interpreted language made in Nim based on a 3x3 grid of zer
 
 Note: Development on this project has slowed due to me recently moving to using [Rust](https://github.com/rust-lang/rust).
 
-[![Nightly Release](https://github.com/MrEnder0/Grid9/actions/workflows/nightly.yml/badge.svg)](https://github.com/MrEnder0/Grid9/actions/workflows/nightly.yml)
+[![Nightly Release](https://github.com/treymouledoux/Grid9/actions/workflows/nightly.yml/badge.svg)](https://github.com/treymouledoux/Grid9/actions/workflows/nightly.yml)
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/MrEnder0/Grid9)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/treymouledoux/Grid9)
 
 ## Installation
 
@@ -21,7 +21,7 @@ Download the latest release for your platform from the releases page.
 Make sure [git](https://github.com/git/git) is installed then run this command.
 
 ```powershell
-powershell.exe $code = Invoke-RestMethod "https://raw.githubusercontent.com/MrEnder0/Grid9/main/scripts/build_and_install_windows.ps1"; foreach($a in $code) {iex $a;}
+powershell.exe $code = Invoke-RestMethod "https://raw.githubusercontent.com/treymouledoux/Grid9/main/scripts/build_and_install_windows.ps1"; foreach($a in $code) {iex $a;}
 ```
 
 #### Linux
@@ -29,20 +29,20 @@ powershell.exe $code = Invoke-RestMethod "https://raw.githubusercontent.com/MrEn
 Make sure [curl](https://github.com/curl/curl) is installed then run this command. It will automatically install [git](https://github.com/git/git) for you.
 
 ```bash
-curl -s https://raw.githubusercontent.com/MrEnder0/Grid9/main/scripts/build_and_install_linux.sh | bash
+curl -s https://raw.githubusercontent.com/treymouledoux/Grid9/main/scripts/build_and_install_linux.sh | bash
 ```
 
 ### Online
 
-You can [run this project in gitpod](https://gitpod.io/#https://github.com/MrEnder0/Grid9) if you don't want to run it locally.
+You can [run this project in gitpod](https://gitpod.io/#https://github.com/treymouledoux/Grid9) if you don't want to run it locally.
 
 ## Documentation
 
-The docs are accessible by running "grid9 d" or "grid9 documentation" in the terminal or by going to the online documentation [here](https://mrender0.github.io/Grid9/).
+The docs are accessible by running "grid9 d" or "grid9 documentation" in the terminal or by going to the online documentation [here](https://treymouledoux.github.io/Grid9/).
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please [open an issue](https://github.com/MrEnder0/Grid9/issues/new) first to discuss what you would like to change.
+Pull requests are welcome. For major changes, please [open an issue](https://github.com/treymouledoux/Grid9/issues/new) first to discuss what you would like to change.
 
 ## License
 

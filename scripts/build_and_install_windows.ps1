@@ -9,7 +9,7 @@ nimble install docopt -y
 nimble install parsetoml -y
 
 Write-Output "Compiling Grid9 and Grid9Converter... (2/5)"
-git clone https://github.com/MrEnder0/Grid9.git
+git clone https://github.com/treymouledoux/Grid9.git
 Set-Location Grid9/src
 nim c -d:release main.nim
 nim c -d:release Grid9Converter.nim

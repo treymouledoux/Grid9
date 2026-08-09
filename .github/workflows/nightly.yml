@@ -19,7 +19,7 @@ jobs:
     - name: Build
       run: |
         cd ${{ github.workspace }}
-        git clone https://github.com/MrEnder0/Grid9.git
+        git clone https://github.com/treymouledoux/Grid9.git
         cd Grid9/src
         nim c -d:release main
     - name: Upload Build
@@ -41,7 +41,7 @@ jobs:
         cd C:\Users\runneradmin\.nimble\bin
         ./nimble install docopt -y
         ./nimble install parsetoml -y
-        git clone https://github.com/MrEnder0/Grid9.git
+        git clone https://github.com/treymouledoux/Grid9.git
         ./nim c -d:release Grid9/src/main
     - name: Upload Build
       uses: actions/upload-artifact@v3
