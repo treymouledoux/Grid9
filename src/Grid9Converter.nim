@@ -23,7 +23,7 @@ Usage:
     Grid9Converter (convert | c) <path> <conversion>
 """
 
-const converterversion = "2023-004"
+const converterversion = "2026-001"
 
 proc logThis(mode: string, message: string) : string {.discardable.} =
     let

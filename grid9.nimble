@@ -1,7 +1,7 @@
 # Package
 
-version       = "2023.003"
-author        = "Mr.Ender"
+version       = "2026.001"
+author        = "treymouledoux"
 description   = "A esoteric interpreted language made in Nim based on a 3x3 grid of zeros and ones. "
 license       = "GPL-3.0"
 srcDir        = "src"

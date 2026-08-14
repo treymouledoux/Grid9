@@ -1,5 +1,5 @@
 #define MyAppName "Grid9"
-#define MyAppVersion "2023-003"
+#define MyAppVersion "2026-001"
 #define MyAppPublisher "treymouledoux"
 #define MyAppURL "https://github.com/treymouledoux/Grid9"
 #define MyAppExeName "Grid9.exe"

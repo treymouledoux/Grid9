@@ -34,7 +34,7 @@ Usage:
     Grid9 glyph_value_get <glyph>
 """
 
-const grid9version = "2023-004"
+const grid9version = "2026-001"
 
 proc logThis(mode: string, message: string) : string {.discardable.} =
     case mode
