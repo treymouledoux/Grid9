@@ -1,50 +1,54 @@
 name: Nightly Release
+ 
 on:
   schedule:
-  - cron: '59 4 * * *'
-
+    - cron: '59 4 * * *'
+  workflow_dispatch: # lets you trigger a nightly build manually from the Actions tab
+ 
+permissions:
+  contents: read
+ 
 jobs:
-  NightlyReleaseLinux:
-    runs-on: ubuntu-latest
+  nightly-release:
+    name: Nightly Release (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false # a failure on one OS shouldn't cancel the other's build
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+ 
     steps:
-    - name: Install Nim
-      uses: jiro4989/setup-nim-action@v1
-      with:
-        nim-version: '1.6.x'
-
-    - name: Install Dependencies
-      run: |
-        nimble install docopt -Y
-        nimble install parsetoml -Y
-    - name: Build
-      run: |
-        cd ${{ github.workspace }}
-        git clone https://github.com/treymouledoux/Grid9.git
-        cd Grid9/src
-        nim c -d:release main
-    - name: Upload Build
-      uses: actions/upload-artifact@v3
-      with:
-        name: Grid9_Nightly_Linux
-        path: Grid9/src/main
-
-  NightlyReleaseWindows:
-    runs-on: windows-latest
-    steps:
-    - name: Install Nim
-      run: |
-        $url = "https://github.com/dom96/choosenim/releases/download/v0.8.4/choosenim-0.8.4_windows_amd64.exe"
-        Invoke-WebRequest -Uri $url -OutFile "choosenim.exe"
-        ./choosenim stable --firstInstall -y
-    - name: Build
-      run: |
-        cd C:\Users\runneradmin\.nimble\bin
-        ./nimble install docopt -y
-        ./nimble install parsetoml -y
-        git clone https://github.com/treymouledoux/Grid9.git
-        ./nim c -d:release Grid9/src/main
-    - name: Upload Build
-      uses: actions/upload-artifact@v3
-      with:
-        name: Grid9_Nightly_Windows
-        path: C:/Users/runneradmin/.nimble/bin/Grid9/src/main.exe
+      - name: Checkout Grid9
+        uses: actions/checkout@v6
+ 
+      - name: Install Nim
+        uses: jiro4989/setup-nim-action@v2
+        with:
+          nim-version: 'stable' # tracks Nim's current stable release; pin e.g. '2.2.x' instead if you'd rather control upgrades yourself
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+ 
+      - name: Cache nimble packages
+        if: runner.os != 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: ~/.nimble
+          key: ${{ runner.os }}-nimble-${{ hashFiles('**/*.nimble') }}
+          restore-keys: |
+            ${{ runner.os }}-nimble-
+ 
+      - name: Install dependencies
+        run: |
+          nimble install docopt -y
+          nimble install parsetoml -y
+ 
+      - name: Build
+        run: nim c -d:release src/main
+ 
+      - name: Upload build
+        uses: actions/upload-artifact@v7
+        with:
+          name: Grid9_Nightly_${{ runner.os }}
+          path: ${{ runner.os == 'Windows' && 'src/main.exe' || 'src/main' }}
+          if-no-files-found: error
+          retention-days: 14
+ 
