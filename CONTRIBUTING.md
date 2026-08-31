@@ -3,7 +3,7 @@
 ## Notes
 
 * Anyone can submit a pull request to this repository for changes.
-* For security issues please message Mr.Ender#0001 directly on Discord instead of making pull request.
+* For security issues please message treymouledoux directly instead of making pull request.
 
 ### Please Do
 

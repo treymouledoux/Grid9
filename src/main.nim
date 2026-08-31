@@ -46,7 +46,7 @@ proc logThis(mode: string, message: string) : string {.discardable.} =
         stdout.styledWriteLine(fgRed, mode, fgWhite, " ", message)
 
 proc about() =
-    echo "\nGrid9 is a esoteric programming language that is based on a 3x3 grid of memory cells where you make patterns glyphs.\nThis language created by Mr.Ender in the Nim programming language.\n"
+    echo "\nGrid9 is a esoteric programming language that is based on a 3x3 grid of memory cells where you make patterns glyphs.\nThis language created by Trey Mouledoux in the Nim programming language.\n"
 
 proc version() =
     echo "\n", grid9version, "\n"
