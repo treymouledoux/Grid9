@@ -1,6 +1,8 @@
 [package]
 name = "grid9"
-version = "0.1.0"
+version = "2026.1.0"
 edition = "2024"
 
 [dependencies]
+scorched = "0.5.*"
+clap = { version = "4.6.*", features = ["derive"] }
