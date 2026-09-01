@@ -1,0 +1,13 @@
+[metadata]
+author = "treymouledoux"
+description = "Prints out a infinite acii skyscraper"
+version = "1.0.2"
+showmetadata = true
+minGrid9Ver = "2022.023"
+
+[config]
+advancedParse = true
+dontCache = false
+echoGridMod = false
+noLog = false
+verbosity = 1

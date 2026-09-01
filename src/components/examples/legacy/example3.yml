@@ -1,0 +1,8 @@
+%YAML 1.2
+---
+[{
+  advancedParse: true,
+  dontCache: false,
+  echoGridMod: false,
+  noLog: false
+}]

@@ -1,0 +1,13 @@
+[metadata]
+author = "treymouledoux"
+description = "Shows how to nest while loops inside each other"
+version = "1.1.0"
+showmetadata = true
+minGrid9Ver = "2022.023"
+
+[config]
+advancedParse = true
+dontCache = false
+echoGridMod = true
+noLog = false
+verbosity = 1

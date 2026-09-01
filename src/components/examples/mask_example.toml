@@ -1,0 +1,13 @@
+[metadata]
+author = "treymouledoux"
+description = "Shows how to mask grids with other grids."
+version = "1.0.0"
+showmetadata = true
+minGrid9Ver = "2022.023"
+
+[config]
+advancedParse = true
+dontCache = false
+echoGridMod = true
+noLog = false
+verbosity = 1

@@ -1,0 +1,46 @@
+WILL DO A INFINITE LOOP THAT WILL PRINT ACII ART THAT LOOKS LIKE A SKYSCRAPER
+
+MAIN LOOP
+w0=0
+FLOORS
+f7
+f5
+f4
+f2
+qs
+qs
+qs
+qs
+qs
+qs
+a0
+p
+
+WINDOWS
+f7
+f5
+f4
+f2
+qs
+
+a0
+f2
+f8
+f7
+f6
+qs
+qs
+qs
+qs
+
+a0
+f7
+f5
+f4
+f2
+qs
+p
+
+LOOP AGAIN
+a0
+]
