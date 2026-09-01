@@ -1,21 +1,16 @@
-#[cfg(windows)]
-macro_rules! base {
-    () => {
-        r"C:\ProgramData\Grid9\"
-    };
-}
-#[cfg(not(windows))]
-macro_rules! base {
-    () => {
-        "/usr/share/Grid9/"
-    };
-}
+use std::sync::LazyLock;
+use std::path::PathBuf;
 
-pub const MAIN_DIR: &str = base!();
-pub const PARSER_CACHE_DIR: &str = concat!(base!(), "parser_cache/");
-pub const LOG_DIR: &str = concat!(base!(), "logs/");
-pub const EXAMPLE_DIR: &str = concat!(base!(), "examples/");
-pub const DOCS_DIR: &str = concat!(base!(), "documentation/");
+pub static DATA_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
+    dirs::data_dir()
+        .map(|d| d.join("Grid9"))
+        .expect("could not locate a user data directory")
+});
+
+pub static PARSER_CACHE_DIR: LazyLock<PathBuf> = LazyLock::new(|| DATA_DIR.join("parser_cache"));
+pub static LOG_DIR:          LazyLock<PathBuf> = LazyLock::new(|| DATA_DIR.join("logs"));
+pub static EXAMPLE_DIR:      LazyLock<PathBuf> = LazyLock::new(|| DATA_DIR.join("examples"));
+pub static DOCS_DIR:         LazyLock<PathBuf> = LazyLock::new(|| DATA_DIR.join("documentation"));
 
 // Install locations, unrelated but needed later
 //Windows = C://Program Files/Grid9
