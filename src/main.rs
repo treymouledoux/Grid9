@@ -1,11 +1,15 @@
+mod file_man;
 mod language;
-mod paths;
 
+use file_man::*;
 use language::glyphs::{decode, encode};
-use paths::*;
 
 use clap::{Parser, Subcommand};
-use scorched::{LogData, LogImportance, logf, set_logging_path};
+use scorched::{
+    LogData, LogExpect,
+    LogImportance::{self, Error},
+    logf, set_logging_path,
+};
 
 #[derive(Parser)]
 #[command(name = "Grid9", version, about = "Grid9 CLI")]
@@ -25,11 +29,13 @@ enum Command {
     #[command(alias = "d")]
     Documentation,
 
-    #[command(alias = "e")]
-    Example { name: String },
-
     #[command(alias = "i")]
-    Interpret { path: String },
+    Interpret {
+        #[arg(short = 'e', long = "example")]
+        example: bool,
+
+        input: String,
+    },
 
     #[command(alias = "c")]
     Convert {
@@ -53,15 +59,26 @@ fn main() {
         ),
         Command::Version => println!("Version: {}", env!("CARGO_PKG_VERSION")),
         Command::Documentation => println!("Docs: https://treymouledoux.github.io/Grid9/"),
-        Command::Example { name } => {
-            // Requires Interpret
-        }   //TODO:
-        Command::Interpret { path } => {
+        Command::Interpret { example, input } => {
+            let path = match example {
+                true => {
+                    format!(
+                        "{}/{}",
+                        EXAMPLE_DIR.to_str().log_expect(
+                            Error,
+                            "Unable to construct example directory, make sure it is exists"
+                        ),
+                        input
+                    )
+                }
+                false => input,
+            };
 
-        } //TODO:
+            // TODO: Interpret code
+        }
         Command::Convert { mode, input } => {
             let result = match mode.as_str() {
-                "encode" => encode(&input),  // char -> glyph codes
+                "encode" => encode(&input), // char -> glyph codes
                 "decode" => decode(&input), // glyph codes -> char
                 _ => unreachable!("clap value_parser restricts mode to char|glyph"),
             };
@@ -69,7 +86,6 @@ fn main() {
             match result {
                 Some(out) => println!("{}", out),
                 None => {
-                    println!("fail");
                     logf!(Warning, "Conversion failed for {input:?}");
                     std::process::exit(1);
                 }
@@ -78,20 +94,22 @@ fn main() {
         Command::Clean { folder } => {
             match folder.as_str() {
                 "parser_cache" | "parser" => {
-
-                },
+                    file_man::clean(file_man::Dir::ParserCache);
+                }
                 "logs" | "log" => {
-
-                },
+                    file_man::clean(file_man::Dir::Logs);
+                }
                 "temp" | "all" | "a" => {
-
-                },
+                    file_man::clean(file_man::Dir::All);
+                }
                 _ => {
-                    logf!(Warning, "Invalid folder name {folder}, try any of the following 'parser_cache', 'parser'; 'logs', 'log'; or 'temp', 'all', 'a'.");
+                    logf!(
+                        Warning,
+                        "Invalid folder name {folder}, try any of the following 'parser_cache', 'parser'; 'logs', 'log'; or 'temp', 'all', 'a'."
+                    );
                     std::process::exit(1);
                 }
             }
-            logf!(Info, "Sucsessfully cleaned {folder}");
-        } //TODO:
+        }
     }
 }
