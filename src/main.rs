@@ -87,7 +87,7 @@ fn main() {
 
                 },
                 _ => {
-                    logf!(Warning, "Invalid folder name {folder}, try any of the following 'parser_cache', 'parser'; 'logs', 'log'; or 'temp', 'all', 'a'.")
+                    logf!(Warning, "Invalid folder name {folder}, try any of the following 'parser_cache', 'parser'; 'logs', 'log'; or 'temp', 'all', 'a'.");
                     std::process::exit(1);
                 }
             }
