@@ -1,2 +1,16 @@
+#Windows binaries
+*.exe
+*.dll
+
+#Linux binaries
+*.bin
+main
+Main
+grid9
+Grid9
+grid9Converter
+Grid9Converter
+
 target/
+
 .DS_Store
