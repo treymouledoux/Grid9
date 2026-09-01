@@ -4,6 +4,7 @@ version = "2026.1.0"
 edition = "2024"
 
 [dependencies]
-scorched = "0.5.*"
+scorched = "0.5.*" # Maintained by Trey Mouledoux
+ver-cmp = "0.1.*"  # Maintained by Trey Mouledoux
 clap = { version = "4.6.*", features = ["derive"] }
 dirs = "6.*.*"

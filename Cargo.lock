@@ -223,6 +223,7 @@ dependencies = [
  "clap",
  "dirs",
  "scorched",
+ "ver-cmp",
 ]
 
 [[package]]
@@ -441,6 +442,12 @@ name = "utf8parse"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
+
+[[package]]
+name = "ver-cmp"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10abd11c6ba367ca429526bd1b5c2b05490f8b6bbb96577b9b40ebbb79dc57ef"
 
 [[package]]
 name = "wasi"
