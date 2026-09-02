@@ -11,6 +11,8 @@ Grid9
 grid9Converter
 Grid9Converter
 
+#Rust binaries
 target/
 
+#Mac
 .DS_Store
