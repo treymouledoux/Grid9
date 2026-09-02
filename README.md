@@ -2,9 +2,6 @@
 
 Grid9 is an esoteric interpreted language based on a 3x3 grid of zeros and ones.
 
-> [!IMPORTANT]
-> This project is activly being re-written in [Rust](https://github.com/rust-lang/rust).
-
 > [!WARNING]
 > The Rust re-write introduces breaking changes to config files due to changing to snake case, configs must be manually migrated
 
