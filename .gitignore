@@ -18,3 +18,5 @@ grid9Converter
 Grid9Converter
 
 target/
+
+.DS_Store

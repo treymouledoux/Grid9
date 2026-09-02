@@ -2,7 +2,9 @@
 
 Grid9 is an esoteric interpreted language made in Nim based on a 3x3 grid of zeros and ones.
 
-Note: Development on this project has slowed due to me recently moving to using [Rust](https://github.com/rust-lang/rust).
+> [!IMPORTANT]
+> This project is activly being re-written in [Rust](https://github.com/rust-lang/rust).
+
 
 [![Nightly Release](https://github.com/treymouledoux/Grid9/actions/workflows/nightly.yml/badge.svg)](https://github.com/treymouledoux/Grid9/actions/workflows/nightly.yml)
 
