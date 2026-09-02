@@ -4,12 +4,15 @@ mod language;
 use std::path::Path;
 
 use file_man::*;
-use language::glyphs::{decode, encode};
+use language::{
+    config::Config,
+    glyphs::{decode, encode},
+};
 
 use clap::{Parser, Subcommand};
 use scorched::{
     LogData, LogExpect,
-    LogImportance::{self, Error},
+    LogImportance::{self, Error, Warning},
     logf, set_logging_path,
 };
 
@@ -77,12 +80,26 @@ fn main() {
             };
 
             if Path::new(&path).exists() {
-                // Continue interpret
+                // Checks and loads config
+                let config_path = format!("{}.toml", &path[..path.len() - 3]);
+                let cfg = if Path::new(&config_path).exists() {
+                    Config::load(config_path).log_expect(Warning, "Error loading malformed config")
+                } else {
+                    Config::default()
+                };
+
+                // TODO: parse code and then interpret
             } else {
                 if example {
-                    logf!(Warning, "No example found with name '{input}', double check the name of the requested example")
+                    logf!(
+                        Warning,
+                        "No example found with name '{input}', double check the name of the requested example"
+                    )
                 } else {
-                    logf!(Error, "File '{path}' not found, check to make sure the correct path has been specified")
+                    logf!(
+                        Error,
+                        "File '{path}' not found, check to make sure the correct path has been specified"
+                    )
                 }
             }
         }
@@ -101,25 +118,23 @@ fn main() {
                 }
             }
         }
-        Command::Clean { folder } => {
-            match folder.as_str() {
-                "parser_cache" | "parser" => {
-                    file_man::clean(file_man::Dir::ParserCache);
-                }
-                "logs" | "log" => {
-                    file_man::clean(file_man::Dir::Logs);
-                }
-                "temp" | "all" | "a" => {
-                    file_man::clean(file_man::Dir::All);
-                }
-                _ => {
-                    logf!(
-                        Warning,
-                        "Invalid folder name '{folder}', try any of the following 'parser_cache', 'parser'; 'logs', 'log'; or 'temp', 'all', 'a'."
-                    );
-                    std::process::exit(1);
-                }
+        Command::Clean { folder } => match folder.as_str() {
+            "parser_cache" | "parser" => {
+                file_man::clean(file_man::Dir::ParserCache);
             }
-        }
+            "logs" | "log" => {
+                file_man::clean(file_man::Dir::Logs);
+            }
+            "temp" | "all" | "a" => {
+                file_man::clean(file_man::Dir::All);
+            }
+            _ => {
+                logf!(
+                    Warning,
+                    "Invalid folder name '{folder}', try any of the following 'parser_cache', 'parser'; 'logs', 'log'; or 'temp', 'all', 'a'."
+                );
+                std::process::exit(1);
+            }
+        },
     }
 }

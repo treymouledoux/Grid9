@@ -2,12 +2,12 @@
 author = "treymouledoux"
 description = "Showcases the use of the delay command in Grid9."
 version = "1.0.2"
-showmetadata = true
-minGrid9Ver = "2023.003"
+show_metadata = true
+min_grid9_ver = "2026.1.0"
 
 [config]
-advancedParse = true
-dontCache = false
-echoGridMod = false
-noLog = false
+advanced_parse = true
+dont_cache = false
+echo_grid_mod = false
+no_log = false
 verbosity = 1

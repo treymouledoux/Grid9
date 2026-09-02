@@ -2,12 +2,12 @@
 author = "treymouledoux"
 description = "Shows how to save and load grids"
 version = "1.0.0"
-showmetadata = true
-minGrid9Ver = "2022.023"
+show_metadata = true
+min_grid9_ver = "2026.1.0"
 
 [config]
-advancedParse = true
-dontCache = false
-echoGridMod = true
-noLog = false
+advanced_parse = true
+dont_cache = false
+echo_grid_mod = false
+no_log = false
 verbosity = 1
