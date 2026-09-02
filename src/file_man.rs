@@ -12,7 +12,14 @@ pub static DATA_DIR: LazyLock<PathBuf> = LazyLock::new(|| {
 
 pub static PARSER_CACHE_DIR: LazyLock<PathBuf> = LazyLock::new(|| DATA_DIR.join("parser_cache"));
 pub static LOG_DIR: LazyLock<PathBuf> = LazyLock::new(|| DATA_DIR.join("logs"));
-pub static EXAMPLE_DIR: LazyLock<PathBuf> = LazyLock::new(|| DATA_DIR.join("examples"));
+pub static EXAMPLE_DIR: LazyLock<PathBuf> = match cfg!(debug_assertions) {
+    true => {
+        LazyLock::new(|| PathBuf::from(r"../../src/components/examples/"))
+    },
+    false => {
+        LazyLock::new(|| DATA_DIR.join("examples"))
+    }
+};
 pub static DOCS_DIR: LazyLock<PathBuf> = LazyLock::new(|| DATA_DIR.join("documentation"));
 
 pub enum Dir {

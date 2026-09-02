@@ -21,7 +21,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Config {
-            config_ver: 2,
+            config_ver: 3,
             min_grid9_ver: "2026.1.0".to_owned(),
             author: "unknown".to_owned(),
             description: "empty".to_owned(),
