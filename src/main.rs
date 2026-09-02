@@ -1,6 +1,8 @@
 mod file_man;
 mod language;
 
+use std::path::Path;
+
 use file_man::*;
 use language::glyphs::{decode, encode};
 
@@ -71,10 +73,18 @@ fn main() {
                         input
                     )
                 }
-                false => input,
+                false => input.clone(),
             };
 
-            // TODO: Interpret code
+            if Path::new(&path).exists() {
+                // Continue interpret
+            } else {
+                if example {
+                    logf!(Warning, "No example found with name '{input}', double check the name of the requested example")
+                } else {
+                    logf!(Error, "File '{path}' not found, check to make sure the correct path has been specified")
+                }
+            }
         }
         Command::Convert { mode, input } => {
             let result = match mode.as_str() {
@@ -105,7 +115,7 @@ fn main() {
                 _ => {
                     logf!(
                         Warning,
-                        "Invalid folder name {folder}, try any of the following 'parser_cache', 'parser'; 'logs', 'log'; or 'temp', 'all', 'a'."
+                        "Invalid folder name '{folder}', try any of the following 'parser_cache', 'parser'; 'logs', 'log'; or 'temp', 'all', 'a'."
                     );
                     std::process::exit(1);
                 }
