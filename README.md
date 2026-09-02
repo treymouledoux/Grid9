@@ -3,7 +3,7 @@
 Grid9 is an esoteric interpreted language based on a 3x3 grid of zeros and ones.
 
 > [!WARNING]
-> The Rust re-write introduces breaking changes to config files due to changing to snake case, configs must be manually migrated
+> The Rust re-write introduces breaking changes to config files due to changing to snake case, configs must be manually migrated, for more information read [here](https://github.com/treymouledoux/Grid9/blob/rust/src/components/examples/migration.md)
 
 > [!CAUTION]
 > This branch of the project is still under HEAVY construction, the language may not act or behave as expected, expect bugs and issues
