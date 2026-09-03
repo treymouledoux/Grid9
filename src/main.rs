@@ -89,7 +89,10 @@ fn main() {
                 };
 
                 if cfg.min_grid9_ver.as_str() > env!("CARGO_PKG_VERSION") {
-                    logf!(Warning, "This script was made for a newer version of Grid9, it may not work as intended, continuing anyways...")
+                    logf!(
+                        Warning,
+                        "This script was made for a newer version of Grid9, it may not work as intended, continuing anyways..."
+                    )
                 }
 
                 if cfg.show_metadata {
@@ -99,7 +102,6 @@ fn main() {
                 }
 
                 // TODO: parse code and then interpret
-                
             } else {
                 if example {
                     logf!(
