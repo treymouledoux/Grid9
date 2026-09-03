@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Grid9 Documentation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,496 +10,447 @@
     <meta content="css/embedimage.png" property="og:image" />
     <meta name="theme-color" content="#15132D">
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 <body>
-    <div style="display: inline">
-        
-        <!-- Sidebar -->
-        <div id="sidebar" class="sidebar_nav">
-            <h3 class="sidebar_nav_title">Menu</h3>
-            <nav>
-                <ul>
-                    <a href="#home" class="sidebar_nav_link">Home</a>
-                    <br><br>
-                    <a href="#0" class="sidebar_nav_link" aria-label="Read more about cell modification category">Cell Modificationꜜ</a>
-                        <ul id="list">
-                            <a href="#set" class="sidebar_nav_link" aria-label="Read more about the set command">Set</a>
-                            <a href="#flip" class="sidebar_nav_link" aria-label="Read more about the flip command">Flip</a>
-                            <a href="#set-all" class="sidebar_nav_link" aria-label="Read more about the set all command">Set-all</a>
-                        </ul>
-                    <br>
-                    <a href="#0" class="sidebar_nav_link" aria-label="Read more about I O category">IOꜜ</a>
-                        <ul id="list">
-                            <a href="#print" class="sidebar_nav_link" aria-label="Read more about the print command">Print</a>
-                            <a href="#queue" class="sidebar_nav_link" aria-label="Read more about the queue command">Queue</a>
-                        </ul>
-                    <br>
-                    <a href="#0" class="sidebar_nav_link" aria-label="Read more about logic category">Logicꜜ</a>
-                        <ul id="list">
-                            <a href="#if" class="sidebar_nav_link" aria-label="Read more about the if statement">If</a>
-                            <a href="#while" class="sidebar_nav_link" aria-label="Read more about the while statement">While</a>
-                            <a href="#exit" class="sidebar_nav_link" aria-label="Read more about the exit statement">Exit</a>
-                        </ul>
-                    <br>
-                    <a href="#0" class="sidebar_nav_link" aria-label="Read more about grid category">Gridꜜ</a>
-                            <ul id="list">
-                            <a href="#give" class="sidebar_nav_link" aria-label="Read more about the give command">Give</a>
-                            <a href="#save&load" class="sidebar_nav_link" aria-label="Read more about grid saving and loading">Save&Load</a>
-                            <br>
-                            <a href="#mask" class="sidebar_nav_link" aria-label="Read more about the grid mask command">Mask</a>
-                            <a href="#xor" class="sidebar_nav_link" aria-label="Read more about the grid xor command">Xor</a>
-                        </ul>
-                    <br>
-                    <a href="#0" class="sidebar_nav_link" aria-label="Read more about misc category">Miskꜜ</a>
-                        <ul id="list">
-                            <a href="#back" class="sidebar_nav_link" aria-label="Read more about the back command">Back</a>
-                            <a href="#delay" class="sidebar_nav_link" aria-label="Read more about the delay command">Delay</a>
-                            <br>
-                            <a href="#terminate" class="sidebar_nav_link" aria-label="Read more about the terminate command">Terminate</a>
-                        </ul>
-                    <br>
-                    <a href="#0" class="sidebar_nav_link" aria-label="Read more about config category">Configꜜ</a>
-                        <ul id="list">
-                            <a href="#toml" class="sidebar_nav_link" aria-label="Read more about toml config files">Toml</a>
-                        </ul>
-                    <br>
-                    <a href="#0" class="sidebar_nav_link" aria-label="Read more about tools that can be used with Grid9">Toolsꜜ</a>
-                        <ul id="list">
-                            <a href="#converter" class="sidebar_nav_link" aria-label="Read more about the Grid9 converter tool">Converter</a>
-                        </ul>
-                    <br>
-                </ul>
-            </nav>
-        </div>
 
-        <main>
-            <!-- Page Content -->
-            <div class="docs">
-                <h1 id="home">Grid9 Documentation</h1>
+<button id="navToggle" class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+</button>
 
-                <br>
-                <h2>Basic Description</h2>
+<div class="layout">
 
-                <p class="docs-data">
-                    To explain Grid9 in one sentence it is an esoteric interpreted language made in Nim based on a 3x3 grid of cells for a total of 9 cells in the grid where the values of the cells consist of zeros and ones.
-                </p>
-                <p class="docs-data">
-                    You can interact with these cells by setting them (s) flipping them (f) or setting all the cells to a value (a).
-                    With all of these ways you can interact with the cells you may wonder what you can do with them and the answer to that is that every output able character in this language has its unique combination of cells.
-                    Now you may wonder why 9 cells why not 8 like the size of a byte. Well, the answer to that is well it is non, but some useful things you can do with that 9th cell use it for your variable storage so you can store a zero or one that may be used to sway logic.
-                </p>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <a href="#home" class="brand">
+            <span class="brand-grid" aria-hidden="true">
+                <i></i><i></i><i></i><i></i><i class="on"></i><i></i><i></i><i></i><i></i>
+            </span>
+            <span class="brand-word">GRID9</span>
+        </a>
+        <nav aria-label="Documentation">
+            <a href="#home" class="nav-link">Home</a>
 
-                <p class="docs-data">
-                    This language doesn't stop at just being able to change a few numbers; there are statements, control of flow operators, and more.
-                </p>
-                <br>
+            <p class="nav-cat">Cell Modification</p>
+            <a href="#set" class="nav-link">Set</a>
+            <a href="#flip" class="nav-link">Flip</a>
+            <a href="#set-all" class="nav-link">Set-all</a>
 
-                <h1>Cell Modification</h1>
-                <br>
+            <p class="nav-cat">IO</p>
+            <a href="#print" class="nav-link">Print</a>
+            <a href="#queue" class="nav-link">Queue</a>
 
-                <h2 id="set">Set</h2>
-                <p class="docs-data">
-                    The set command is used to set a cell to a value.
-                </p>
-                <p class="docs-data">
-                    The syntax for this command is "s" followed by the cell id and then the value you want to set it to.
-                    This unlike the flip command sets the value for certain of a cell's value.
-                </p>
-                <p class="docs-data">
-                    For example, if you wanted to set cell 0 to 1 you would run the code below.
-                </p>
-                <br>
+            <p class="nav-cat">Logic</p>
+            <a href="#if" class="nav-link">If</a>
+            <a href="#while" class="nav-link">While</a>
+            <a href="#exit" class="nav-link">Exit</a>
 
-                <div style=width:5%;min-width:50px; class="code-block">
-                    <p class="docs-data">
-                        <span class="cm">s01</span>
-                    </p>
-                </div>
-                <br>
+            <p class="nav-cat">Grid</p>
+            <a href="#give" class="nav-link">Give</a>
+            <a href="#save-load" class="nav-link">Save &amp; Load</a>
+            <a href="#mask" class="nav-link">Mask</a>
+            <a href="#xor" class="nav-link">Xor</a>
 
-                <h2 id="flip">Flip</h1>
-                <p class="docs-data">
-                    The flip command is used to flip a cell to a value.
-                </p>
-                <p class="docs-data">
-                    The syntax for this command is "f" followed by the cell id that you would like to flip (0-8).
-                    This unlike the set command flips the value with the uncertainty of a cell's value.
-                </p>
-                <p class="docs-data">
-                    For example, if you wanted to flip cell 2 you would run the code below.
-                </p>
-                <br>
+            <p class="nav-cat">Misc</p>
+            <a href="#back" class="nav-link">Back</a>
+            <a href="#delay" class="nav-link">Delay</a>
+            <a href="#terminate" class="nav-link">Terminate</a>
 
-                <div style=width:4%;min-width:40px; class="code-block">
-                    <p class="docs-data">
-                        <span class="cm">f2</span>
-                    </p>
-                </div>
-                <br>
+            <p class="nav-cat">Config</p>
+            <a href="#toml" class="nav-link">Toml</a>
+        </nav>
+    </aside>
 
-                <h2 id="set-all">Set-all</h2>
-                <p class="docs-data">
-                    The set-all command is used to set a cell to a value.
-                </p>
-                <p class="docs-data">
-                    The syntax for this command is "s" followed by the cell id and then the value you want to set it to.
-                    This flips all cells with the certainty of a cell's value.
-                </p>
-                <p class="docs-data">
-                    For example, if you wanted all the cells to have the value 1 you would run the code below.
-                </p>
-                <br>
+    <main class="docs">
 
-                <div style=width:4%;min-width:40px; class="code-block">
-                    <p class="docs-data">
-                        <span class="cm">a1</span>
-                    </p>
-                </div>
-                <br>
-
-                <h1>IO</h1>
-                <br>
-
-                <h2 id="print">Print</h2>
-                <p class="docs-data">
-                    The print command is used to print the grid glyph character to the console.
-                </p>
-                <p class="docs-data">
-                    Now, this command needs a little explanation to understand it, but every output-able character has its combination on the grid and those are called "glyphs".
-                    The print command converts these "glyphs" into the single character that they represent.
-                    Also, the print command will print the current queue instead of the current glyph if the queue contains anything.
-                    The syntax for this command is "p".
-                </p>
-                <p class="docs-data">
-                    For example, the character "a" is represented by 000000010. If you were to flip cell 7 (the cell ids start at 0) and then it would print "a" like in the code shown below.
-                </p>
-                <br>
-
-                <div style=width:5%;min-width:50px; class="code-block">
-                    <p class="docs-data">
-                        <span class="cm">f7</span>
-                        <span class="io">p</span>
-                    </p>
-                </div>
-                <br>
-
-                <h2 id="queue">Queue</h2>
-                <p class="docs-data">
-                    The queue command is used to print multiple "glyphs" or characters together.
-                </p>
-                <p class="docs-data">
-                    The syntax for this command is "qs" to add a glyph to the queue and "qc" to completely clear the queue.
-                </p>
-                <p class="docs-data">
-                    For example say you want to print two "r" letters next to each other.
-                    To do this you would want to make the glyph for "r" save it in the queue and then again save it and then print it to get the output "rr" like in the code shown below.
-                </p>
-                <br>
-
-                <div style=width:22%;min-width:220px; class="code-block">
-                    <p class="docs-data">
-                        <span class="cm">f4</span>
-                        <span class="cm">f7</span>
-                        <span class="cm">f8</span>
-                        <span class="io">qs</span>
-                        <span class="cm">a0</span>
-                        <span class="cm">f4</span>
-                        <span class="cm">f7</span>
-                        <span class="cm">f8</span>
-                        <span class="io">qs</span>
-                        <span class="io">p</span>
-                    </p>
-                </div>
-                <br>
-
-                <h1>Logic</h1>
-                <br>
-
-                <h2 id="if">If</h2>
-                <p class="docs-data">
-                    The if command is used to check if a cell is a zero or a one.
-                </p>
-                <p class="docs-data">
-                    The syntax for this command is "i" followed by the cell id and then a "=" or a "!" for a not equal to the value of the cell you are testing for.
-                    Remember to also close an if statement, to do this you have to use a "}"
-                </p>
-                <p class="docs-data">
-                    For example, if you wanted to test cell 2 for zero and if true print the letter c you would run the code below.
-                </p>
-                <br>
-
-                <div style=width:10%;min-width:100px; class="code-block">
-                    <p class="docs-data">
-                        <span class="log">i2=0</span>
-                        <span class="cm">f6</span>
-                        <span class="io">p</span>
-                        <span class="log">}</span>
-                    </p>
-                </div>
-                <br>
-
-                <h2 id="while">While</h2>
-                <p class="docs-data">
-                    The while command is used to loop in your code as long as its conditions are met.
-                </p>
-                <p class="docs-data">
-                    The syntax for this command is similar to the if command, the syntax for it is a "w" followed by the cell id and then a "=" or a "!" for a not equal then the value of the cell you are testing for.
-                    Remember to also close a while statement, to do this you have to use a "]"
-                </p>
-                <p class="docs-data">
-                    For example, if you wanted to loop while cell 2 is zero that prints the letter c infinitely you would run the code below.
-                </p>
-                <br>
-
-                <div style=width:11%;min-width:110px; class="code-block">
-                    <p class="docs-data">
-                        <span class="log">w2=0</span>
-                        <span class="cm">f6</span>
-                        <span class="io">p</span>
-                        <span class="log">]</span>
-                    </p>
-                </div>
-                <br>
-
-                <h2 id="exit">Exit</h2>
-                <p class="docs-data">
-                    The exit command is used to exit the current while loop.
-                </p>
-                <p class="docs-data">
-                    The syntax for this command is just "e".
-                </p>
-                <p class="docs-data">
-                    For example, if you wanted to loop while cell 5 is a zero that prints the letter c but then breaks out of the loop you would run the code below.
-                </p>
-                <br>
-
-                <div style=width:12%;min-width:120px; class="code-block">
-                    <p class="docs-data">
-                        <span class="log">w5=0</span>
-                        <span class="cm">f6</span>
-                        <span class="io">p</span>
-                        <span class="log">e</span>
-                        <span class="log">]</span>
-                    </p>
-                </div>
-                <br>
-
-                <h1 id="grid">Grid</h1>
-                <br>
-
-                <h2 id="give">Give</h2>
-                <p class="docs-data">
-                    The grid command is for users to give a glyph pattern as input to the script.
-                <p class="docs-data">
-                    The syntax for this command is "gg".
-                </p>
-                <p class="docs-data">
-                    For example, if you wanted to make a simple glyph-to-character converter you would that would do is it would take input and print out the character as output. The code for this is shown below.
-                </p>
-                <br>
-
-                <div style=width:5%;min-width:40px; class="code-block">
-                    <p class="docs-data">
-                        <span class="io">gg</span>
-                        <span class="io">p</span>
-                    </p>
-                </div>
-                <br>
-
-                <h2 id="save&load">Save and Load</h2>
-                <p class="docs-data">
-                    The save and load commands are used to save and load glyph patterns to other grids that can be used for layer.
-                </p>
-                <p class="docs-data">
-                    The syntax for this command is "gs" and then an id from 0-8 to save; and then "gl" and an id from 0-8 to load.
-                </p>
-                
-                <div style=width:10%;min-width:100px; class="code-block">
-                    <p class="docs-data">
-                        <span class="cm">ar</span>
-                        <span class="cm">s00</span>
-                        <span class="io">p</span>
-                        <span class="cm">gs0</span>
-                        <span class="cm">ar</span>
-                        <span class="cm">s00</span>
-                        <span class="io">p</span>
-                        <span class="cm">gl0</span>
-                        <span class="io">p</span>
-                    </p>
-                </div>
-                <br>
-
-                <h2 id="mask">Mask</h2>
-                <p class="docs-data">
-                    The mask command is used to mask a saved grid on top of the current grid.
-                </p>
-                <p class="docs-data">
-                    The syntax for this command is "gm" and then an id from 0-8 to mask.
-                </p>
-
-                <div style=width:10%;min-width:100px; class="code-block">
-                    <p class="docs-data">
-                        <span class="cm">ar</span>
-                        <span class="cm">gs0</span>
-                        <span class="cm">ar</span>
-                        <span class="cm">gm0</span>
-                    </p>
-                </div>
-                <br>
-
-                <h2 id="xor">Xor</h2>
-                <p class="docs-data">
-                    The xor command is used to xor the current grid or a saved grid.
-                </p>
-                <p class="docs-data">
-                    The syntax for this command is "gx" and then an id from 0-8 or "c" if you wanted to do the current grid to xor.
-                </p>
-
-                <div style=width:10%;min-width:100px; class="code-block">
-                    <p class="docs-data">
-                        <span class="cm">f6</span>
-                        <span class="cm">f2</span>
-                        <span class="cm">f0</span>
-                        <span class="cm">f7</span>
-                        <span class="cm">gxc</span>
-                    </p>
-                </div>
-                <br>
-
-                <h1 id="misk">Misc</h1>
-                <br>
-
-                <h2 id="back">Back</h2>
-                <p class="docs-data">
-                    The back command is used to go back to previous instructions in the code.
-                </p>
-                <p class="docs-data">
-                    The syntax for this command is "b" followed by the number of instructions you want to go back. Note this value can be any number higher than 0.
-                </p>
-                <p class="docs-data">
-                    For example, if you wanted to go back 23 instructions you would run the code below.
-                </p>
-                <br>
-
-                <div style=width:4%;min-width:40px; class="code-block">
-                    <p class="docs-data">
-                        <span class="msk">b23</span>
-                    </p>
-                </div>
-                <br>
-
-                <h2 id="delay">Delay</h2>
-                <p class="docs-data">
-                    The delay command is used to wait in-between instructions inside of your code.
-                </p>
-                <p class="docs-data">
-                    The syntax for this command is "d" followed by the number of seconds you want to wait before continuing. Note this value can be any number higher than 0.
-                </p>
-                <p class="docs-data">
-                    For example, if you wanted to flip a value on the grid, then wait for 14 whole seconds, and then finally print it out you would run the code below.
-                </p>
-                <br>
-
-                <div style=width:4%;min-width:40px; class="code-block">
-                    <p class="docs-data">
-                        <span class="cm">f6</span>
-                        <span class="msk">d14</span>
-                        <span class="io">p</span>
-                    </p>
-                </div>
-                <br>
-
-                <h2 id="terminate">Terminate</h2>
-                <p class="docs-data">
-                    The terminate command is used to terminate the program.
-                </p>
-                <p class="docs-data">
-                    The syntax for this command is just "t".
-                </p>
-                <p class="docs-data">
-                    For example, if you wanted to terminate the program if a condition is met you would do it in the code below. As you can see the code "f7p" will never get run because by default all cells are 0 and that condition is true so it terminates the program.
-                </p>
-                <br>
-
-                <div style=width:10%;min-width:100px; class="code-block">
-                    <p class="docs-data">
-                        <span class="log">i0=0</span>
-                        <span class="msk">t</span>
-                        <span class="log">}</span>
-                        <span class="cm">f7</span>
-                        <span class="io">p</span>
-                    </p>
-                </div>
-                <br>
-
-                <h1>Config</h1>
-                <br>
-
-                <h2 id="toml">Toml</h2>
-                <p class="docs-data">
-                    In Grid9 version 2022-020 and above you can now use toml files to configure the way code is run. This is a new feature and is still not perfect so it may not work as expected.
-                </p>
-                <p class="docs-data">
-                    The structure for the config is shown below. If you do not define a config value that value will be set to its default value. While the rest are set to the values you defined.
-                </p>
-                <br>
-
-                <div style=width:20%;min-width:300px; class="code-block">
-                    <p class="docs-data">
-                        <span class="io">[</span>
-                        <span class="log">config</span>
-                        <span class="io">]</span>
-                        <br>
-                        <span class="cm">advancedParse</span>
-                        <span class="io"> = </span>
-                        <span class="log">true</span>
-                        <br>
-                        <span class="cm">dontCache</span>
-                        <span class="io"> = </span>
-                        <span class="log">false</span>
-                        <br>
-                        <span class="cm">echoGridMod</span>
-                        <span class="io"> = </span>
-                        <span class="log">false</span>
-                        <br>
-                        <span class="cm">noLog</span>
-                        <span class="io"> = </span>
-                        <span class="log">false</span>
-                        <br>
-                        <span class="cm">verbosity</span>
-                        <span class="io"> = </span>
-                        <span class="log">1</span>
-                    </p>
-                </div>
-                <br>
-
-                <p class="docs-data">
-                    These config options are used to change the way Grid9 interacts with your code.
-                    For example, you can run advancedParse which will make the program start slower but can fix issues in your code.
-                    The options can also allow you to see more technical information about the program. For example, turning on echoGridMod will print you the grid after every instruction that modifies the cells in some way.
-                </p>
-                <br>
-
-                <h1>Tools</h1>
-                <br>
-
-                <h2 id="converter">Converter</h2>
-                <p class="docs-data">
-                    The converter is a tool that allows you to convert your scripts into a formats or text into Grid9.
-                </p>
-                <p class="docs-data">
-                    The converter tool is an optional component that can be installed with Grid9. If you do not have it installed you have to re-run the installer and select the converter option. If you are on Linux you should have the binary already.
-                </p>
-                <br>
+        <!-- Hero -->
+        <header id="home" class="hero">
+            <div class="hero-tag">v2026.1.0</div>
+            <h1 class="hero-title">Grid9 Documentation</h1>
+            <p class="hero-lede">
+                An esoteric interpreted language built on a 3&times;3 grid of nine cells,
+                each holding a zero or a one. Modify cells, read them out as glyphs, and
+                bend control flow &mdash; all from a nine-bit playground.
+            </p>
+            <div class="hero-actions">
+                <a class="btn btn-primary" href="https://github.com/treymouledoux/Grid9" target="_blank" rel="noopener">GitHub</a>
+                <a class="btn" href="#set">Start reading</a>
             </div>
-        </main>
-    </div>
 
-    <script>
-        $(window).scroll(function(){
-          $("#sidebar_nav").stop().animate({"marginTop": ($(window).scrollTop()) + "px"}, "slow" );
+            <div class="hero-play">
+                <div class="hero-grid" id="playGrid" role="group" aria-label="Interactive 3 by 3 Grid9 grid">
+                    <button class="cell" aria-label="cell 0" aria-pressed="false"></button>
+                    <button class="cell" aria-label="cell 1" aria-pressed="false"></button>
+                    <button class="cell" aria-label="cell 2" aria-pressed="false"></button>
+                    <button class="cell" aria-label="cell 3" aria-pressed="false"></button>
+                    <button class="cell" aria-label="cell 4" aria-pressed="false"></button>
+                    <button class="cell" aria-label="cell 5" aria-pressed="false"></button>
+                    <button class="cell" aria-label="cell 6" aria-pressed="false"></button>
+                    <button class="cell" aria-label="cell 7" aria-pressed="false"></button>
+                    <button class="cell" aria-label="cell 8" aria-pressed="false"></button>
+                </div>
+
+                <div class="glyph-readout" aria-live="polite">
+                    <div class="glyph-char" id="glyphChar">␣</div>
+                    <div class="glyph-meta">
+                        <span class="glyph-bits" id="glyphBits">000000000</span>
+                        <span class="glyph-note" id="glyphNote">index 0 · space</span>
+                    </div>
+                </div>
+            </div>
+            <p class="hero-hint">Toggle the cells &mdash; each nine-bit pattern decodes to one glyph, if one exists.</p>
+        </header>
+
+        <!-- Overview -->
+        <section class="block">
+            <h2 class="block-title">Basic Description</h2>
+            <p>
+                In one sentence: Grid9 is an esoteric interpreted language made in Nim (and now
+                rewritten in Rust) based on a 3&times;3 grid of cells &mdash; nine cells total &mdash;
+                where each cell holds a zero or a one.
+            </p>
+            <p>
+                You interact with these cells by <strong>setting</strong> them (<code>s</code>),
+                <strong>flipping</strong> them (<code>f</code>), or <strong>setting all</strong> cells to
+                a value (<code>a</code>). Every output-able character in the language has its own unique
+                combination of cells. Why nine cells and not eight, the size of a byte? There's no strict
+                reason &mdash; but the ninth cell is useful for variable storage, holding a zero or one that
+                can sway your logic.
+            </p>
+            <p>
+                The language doesn't stop at changing a few numbers; there are statements, control-flow
+                operators, and more.
+            </p>
+
+            <div class="legend" aria-hidden="true">
+                <span><i class="sw cm"></i>Cell mod</span>
+                <span><i class="sw io"></i>IO</span>
+                <span><i class="sw log"></i>Logic</span>
+                <span><i class="sw msk"></i>Misc</span>
+            </div>
+        </section>
+
+        <!-- Cell Modification -->
+        <section class="cat" id="cell-modification">
+            <p class="cat-index">01</p>
+            <h2 class="cat-title">Cell Modification</h2>
+        </section>
+
+        <section class="block" id="set">
+            <h3 class="cmd"><span class="cmd-name">Set</span><span class="cmd-syntax">s&lt;cell&gt;&lt;value&gt;</span></h3>
+            <p>The set command sets a cell to a value.</p>
+            <p>
+                The syntax is <code>s</code> followed by the cell id and then the value you want to set it to.
+                Unlike flip, set writes a cell's value with certainty.
+            </p>
+            <p>For example, to set cell 0 to 1 you would run the code below.</p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">s01</span></code></pre></div>
+        </section>
+
+        <section class="block" id="flip">
+            <h3 class="cmd"><span class="cmd-name">Flip</span><span class="cmd-syntax">f&lt;cell&gt;</span></h3>
+            <p>The flip command flips a cell to the opposite value.</p>
+            <p>
+                The syntax is <code>f</code> followed by the cell id you'd like to flip (0&ndash;8).
+                Unlike set, flip toggles the value regardless of what it currently is.
+            </p>
+            <p>For example, to flip cell 2 you would run the code below.</p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">f2</span></code></pre></div>
+        </section>
+
+        <section class="block" id="set-all">
+            <h3 class="cmd"><span class="cmd-name">Set-all</span><span class="cmd-syntax">a&lt;value&gt;</span></h3>
+            <p>The set-all command sets every cell to a single value at once.</p>
+            <p>The syntax is <code>a</code> followed by the value you want every cell to take.</p>
+            <p>For example, to give all cells the value 1 you would run the code below.</p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">a1</span></code></pre></div>
+        </section>
+
+        <!-- IO -->
+        <section class="cat" id="io">
+            <p class="cat-index">02</p>
+            <h2 class="cat-title">IO</h2>
+        </section>
+
+        <section class="block" id="print">
+            <h3 class="cmd"><span class="cmd-name">Print</span><span class="cmd-syntax">p</span></h3>
+            <p>The print command prints the grid's glyph character to the console.</p>
+            <p>
+                Every output-able character has a combination on the grid called a &ldquo;glyph.&rdquo; Print
+                converts the current glyph into the single character it represents. If the queue contains
+                anything, print outputs the queue instead of the current glyph. The syntax is <code>p</code>.
+            </p>
+            <p>
+                For example, the character &ldquo;a&rdquo; is represented by <code>000000010</code>. Flip
+                cell 7 (cell ids start at 0) and print, and it outputs &ldquo;a,&rdquo; as shown below.
+            </p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">f7</span> <span class="io">p</span></code></pre></div>
+        </section>
+
+        <section class="block" id="queue">
+            <h3 class="cmd"><span class="cmd-name">Queue</span><span class="cmd-syntax">qs&nbsp;/&nbsp;qc</span></h3>
+            <p>The queue command prints multiple glyphs or characters together.</p>
+            <p>The syntax is <code>qs</code> to add a glyph to the queue and <code>qc</code> to clear the queue entirely.</p>
+            <p>
+                Say you want to print two &ldquo;r&rdquo; letters side by side. Build the glyph for
+                &ldquo;r,&rdquo; save it to the queue, build it again, save it, then print &mdash; giving you
+                &ldquo;rr,&rdquo; as shown below.
+            </p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">f4</span> <span class="cm">f7</span> <span class="cm">f8</span> <span class="io">qs</span> <span class="cm">a0</span> <span class="cm">f4</span> <span class="cm">f7</span> <span class="cm">f8</span> <span class="io">qs</span> <span class="io">p</span></code></pre></div>
+        </section>
+
+        <!-- Logic -->
+        <section class="cat" id="logic">
+            <p class="cat-index">03</p>
+            <h2 class="cat-title">Logic</h2>
+        </section>
+
+        <section class="block" id="if">
+            <h3 class="cmd"><span class="cmd-name">If</span><span class="cmd-syntax">i&lt;cell&gt;=/!&lt;value&gt; … }</span></h3>
+            <p>The if command checks whether a cell is a zero or a one.</p>
+            <p>
+                The syntax is <code>i</code> followed by the cell id, then <code>=</code> (equal) or
+                <code>!</code> (not equal), then the value you're testing for. Close an if statement with
+                <code>}</code>.
+            </p>
+            <p>For example, to test cell 2 for zero and, if true, print the letter c, run the code below.</p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="log">i2=0</span> <span class="cm">f6</span> <span class="io">p</span> <span class="log">}</span></code></pre></div>
+        </section>
+
+        <section class="block" id="while">
+            <h3 class="cmd"><span class="cmd-name">While</span><span class="cmd-syntax">w&lt;cell&gt;=/!&lt;value&gt; … ]</span></h3>
+            <p>The while command loops as long as its condition is met.</p>
+            <p>
+                The syntax mirrors if: <code>w</code> followed by the cell id, then <code>=</code> or
+                <code>!</code>, then the value you're testing for. Close a while statement with <code>]</code>.
+            </p>
+            <p>For example, to loop while cell 2 is zero, printing the letter c infinitely, run the code below.</p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="log">w2=0</span> <span class="cm">f6</span> <span class="io">p</span> <span class="log">]</span></code></pre></div>
+        </section>
+
+        <section class="block" id="exit">
+            <h3 class="cmd"><span class="cmd-name">Exit</span><span class="cmd-syntax">e</span></h3>
+            <p>The exit command breaks out of the current while loop.</p>
+            <p>The syntax is simply <code>e</code>.</p>
+            <p>For example, to loop while cell 5 is zero, print the letter c, then break out of the loop, run the code below.</p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="log">w5=0</span> <span class="cm">f6</span> <span class="io">p</span> <span class="log">e</span> <span class="log">]</span></code></pre></div>
+        </section>
+
+        <!-- Grid -->
+        <section class="cat" id="grid">
+            <p class="cat-index">04</p>
+            <h2 class="cat-title">Grid</h2>
+        </section>
+
+        <section class="block" id="give">
+            <h3 class="cmd"><span class="cmd-name">Give</span><span class="cmd-syntax">gg</span></h3>
+            <p>The give command lets users supply a glyph pattern as input to the script.</p>
+            <p>The syntax is <code>gg</code>.</p>
+            <p>
+                For example, a simple glyph-to-character converter takes input and prints the character as
+                output. The code for that is shown below.
+            </p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="io">gg</span> <span class="io">p</span></code></pre></div>
+        </section>
+
+        <section class="block" id="save-load">
+            <h3 class="cmd"><span class="cmd-name">Save and Load</span><span class="cmd-syntax">gs&lt;id&gt;&nbsp;/&nbsp;gl&lt;id&gt;</span></h3>
+            <p>Save and load commands store and recall glyph patterns to other grids for use later.</p>
+            <p>The syntax is <code>gs</code> plus an id from 0&ndash;8 to save, and <code>gl</code> plus an id from 0&ndash;8 to load.</p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">ar</span> <span class="cm">s00</span> <span class="io">p</span> <span class="cm">gs0</span> <span class="cm">ar</span> <span class="cm">s00</span> <span class="io">p</span> <span class="cm">gl0</span> <span class="io">p</span></code></pre></div>
+        </section>
+
+        <section class="block" id="mask">
+            <h3 class="cmd"><span class="cmd-name">Mask</span><span class="cmd-syntax">gm&lt;id&gt;</span></h3>
+            <p>The mask command masks a saved grid on top of the current grid.</p>
+            <p>The syntax is <code>gm</code> plus an id from 0&ndash;8 to mask.</p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">ar</span> <span class="cm">gs0</span> <span class="cm">ar</span> <span class="cm">gm0</span></code></pre></div>
+        </section>
+
+        <section class="block" id="xor">
+            <h3 class="cmd"><span class="cmd-name">Xor</span><span class="cmd-syntax">gx&lt;id&gt;/c</span></h3>
+            <p>The xor command xors the current grid, or a saved grid, against it.</p>
+            <p>The syntax is <code>gx</code> plus an id from 0&ndash;8, or <code>c</code> to xor against the current grid.</p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">f6</span> <span class="cm">f2</span> <span class="cm">f0</span> <span class="cm">f7</span> <span class="cm">gxc</span></code></pre></div>
+        </section>
+
+        <!-- Misc -->
+        <section class="cat" id="misc">
+            <p class="cat-index">05</p>
+            <h2 class="cat-title">Misc</h2>
+        </section>
+
+        <section class="block" id="back">
+            <h3 class="cmd"><span class="cmd-name">Back</span><span class="cmd-syntax">b&lt;n&gt;</span></h3>
+            <p>The back command jumps back to previous instructions in the code.</p>
+            <p>The syntax is <code>b</code> followed by the number of instructions to go back. This value can be any number greater than 0.</p>
+            <p>For example, to go back 23 instructions you would run the code below.</p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="msk">b23</span></code></pre></div>
+        </section>
+
+        <section class="block" id="delay">
+            <h3 class="cmd"><span class="cmd-name">Delay</span><span class="cmd-syntax">d&lt;seconds&gt;</span></h3>
+            <p>The delay command waits between instructions in your code.</p>
+            <p>The syntax is <code>d</code> followed by the number of seconds to wait before continuing. This value can be any number greater than 0.</p>
+            <p>For example, to flip a value, wait 14 whole seconds, then print it, run the code below.</p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">f6</span> <span class="msk">d14</span> <span class="io">p</span></code></pre></div>
+        </section>
+
+        <section class="block" id="terminate">
+            <h3 class="cmd"><span class="cmd-name">Terminate</span><span class="cmd-syntax">t</span></h3>
+            <p>The terminate command ends the program.</p>
+            <p>The syntax is simply <code>t</code>.</p>
+            <p>
+                For example, to terminate the program when a condition is met, use the code below. The
+                <code>f7p</code> at the end never runs: by default all cells are 0, so the condition is
+                true and the program terminates first.
+            </p>
+            <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="log">i0=0</span> <span class="msk">t</span> <span class="log">}</span> <span class="cm">f7</span> <span class="io">p</span></code></pre></div>
+        </section>
+
+        <!-- Config -->
+        <section class="cat" id="config">
+            <p class="cat-index">06</p>
+            <h2 class="cat-title">Config</h2>
+        </section>
+
+        <section class="block" id="toml">
+            <h3 class="cmd"><span class="cmd-name">Toml</span><span class="cmd-syntax">config.toml</span></h3>
+            <p>
+                Grid9 can be configured with a TOML file that changes how your code runs. The Rust rewrite
+                (v2026.1.0 and above) uses <code>snake_case</code> keys split across a
+                <code>[metadata]</code> table and a <code>[config]</code> table.
+            </p>
+            <p>
+                The structure is shown below. Any value you leave out falls back to its default; the rest
+                take the values you define.
+            </p>
+            <div class="code code--toml"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>config.toml</div><pre><code><span class="io">[</span><span class="log">metadata</span><span class="io">]</span>
+<span class="cm">author</span>        <span class="io">=</span> <span class="msk">"unknown"</span>
+<span class="cm">description</span>   <span class="io">=</span> <span class="msk">"empty"</span>
+<span class="cm">version</span>       <span class="io">=</span> <span class="msk">"0.1.0"</span>
+<span class="cm">min_grid9_ver</span> <span class="io">=</span> <span class="msk">"2026.1.0"</span>
+<span class="cm">show_metadata</span> <span class="io">=</span> <span class="log">false</span>
+
+<span class="io">[</span><span class="log">config</span><span class="io">]</span>
+<span class="cm">advanced_parse</span> <span class="io">=</span> <span class="log">true</span>
+<span class="cm">dont_cache</span>     <span class="io">=</span> <span class="log">false</span>
+<span class="cm">echo_grid_mod</span>  <span class="io">=</span> <span class="log">false</span>
+<span class="cm">no_log</span>         <span class="io">=</span> <span class="log">false</span>
+<span class="cm">verbosity</span>      <span class="io">=</span> <span class="log">1</span></code></pre></div>
+            <p>
+                These options change how Grid9 interacts with your code. For instance,
+                <code>advanced_parse</code> makes the program start slower but can fix issues in your code,
+                and <code>echo_grid_mod</code> prints the grid after every instruction that modifies a cell,
+                which is handy for seeing more technical detail while debugging.
+            </p>
+        </section>
+
+        <footer class="site-footer">
+            <span class="brand-word small">GRID9</span>
+            <p>Made by treymouledoux &middot; Licensed under GPL-3.0</p>
+        </footer>
+
+    </main>
+</div>
+
+<script>
+    // Mobile nav toggle
+    var toggle = document.getElementById('navToggle');
+    var sidebar = document.getElementById('sidebar');
+    toggle.addEventListener('click', function () {
+        var open = sidebar.classList.toggle('open');
+        toggle.classList.toggle('is-open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.querySelectorAll('.nav-link').forEach(function (a) {
+        a.addEventListener('click', function () {
+            if (window.matchMedia('(max-width: 900px)').matches) {
+                sidebar.classList.remove('open');
+                toggle.classList.remove('is-open');
+                toggle.setAttribute('aria-expanded', 'false');
+            }
         });
-    </script>
+    });
+
+    // Scrollspy: highlight the sidebar link for the section in view
+    var links = Array.prototype.slice.call(document.querySelectorAll('.nav-link'));
+    var byId = {};
+    links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+    var targets = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+    var spy = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+            if (e.isIntersecting) {
+                links.forEach(function (l) { l.classList.remove('active'); });
+                if (byId[e.target.id]) byId[e.target.id].classList.add('active');
+            }
+        });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+    targets.forEach(function (t) { spy.observe(t); });
+
+    /* ----- Grid9 glyph table (mirrors src/language/glyphs.rs GLYPHS) ----- */
+    var GLYPHS = [
+        " ", "\n",
+        "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
+        "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
+        "0","1","2","3","4","5","6","7","8","9",
+        ".", ",", "?", "!", ":", ";", "-", "_", "'", "\\", "(", ")", "[", "]", "{", "}",
+        "=", "+", "*", "/", "|", "&", "^", "%", "$", "@", "#", "~", "`",
+        "¿","¡","¬","€","£","¥","¢",
+        "₢","₣","₤","₥","₦","₧","₨","₩","₪","₫","₭","₮","₯","₰","₱","₲","₳","₴","₵","₶","₷","₸","₹","₺","₻","₼","₽","₾","₿",
+        "₀","₁","₂","₃","₄","₅","₆","₇","₈","₉",
+        "█","▌","▐","░","▒","▓",
+        "│","┤","┬","┴","┼","╀","╁","╂","╃","╄","╅","╆","╇","╈","╉","╊","╋","╌","╍","╎","╏",
+        "═","║","╒","╓","╔","╕","╖","╗","╘","╙","╚","╛","╜","╝","╞","╟","╠","╡","╢","╣","╤","╥","╦","╧","╨","╩","╪","╫","╬","╭","╮","╯","╰",
+        "😀","😁","😅","😂","😭","😉","😍","🥳","🙃","🥺","😛","😇","🫡","🤔","😱","😡","🤬","😨","😳","🤯","😬","😵‍💫","🫥","😴","🥵","🥶","🤢","🤮","🤠","🤑","😎","🤓","🤥","🤡",
+        "👻","💩","🔥","⭐","💥","💯","💦","💤","😺","❤️","💀","👀","👁️","👅","💾","🔋","🪫","💽","💿","🧾","☢️","☣️","⚠️"
+    ];
+
+    var cells = Array.prototype.slice.call(document.querySelectorAll('#playGrid .cell'));
+    var glyphChar = document.getElementById('glyphChar');
+    var glyphBits = document.getElementById('glyphBits');
+    var glyphNote = document.getElementById('glyphNote');
+
+    function readout() {
+        var bits = cells.map(function (c) { return c.classList.contains('on') ? '1' : '0'; }).join('');
+        var index = parseInt(bits, 2);
+        glyphBits.textContent = bits;
+
+        var glyph = GLYPHS[index];
+        if (glyph === undefined) {
+            glyphChar.textContent = '∅';
+            glyphChar.className = 'glyph-char is-empty';
+            glyphNote.textContent = 'index ' + index + ' · no glyph';
+        } else if (glyph === ' ') {
+            glyphChar.textContent = '␣';
+            glyphChar.className = 'glyph-char is-special';
+            glyphNote.textContent = 'index ' + index + ' · space';
+        } else if (glyph === '\n') {
+            glyphChar.textContent = '⏎';
+            glyphChar.className = 'glyph-char is-special';
+            glyphNote.textContent = 'index ' + index + ' · newline';
+        } else {
+            glyphChar.textContent = glyph;
+            glyphChar.className = 'glyph-char';
+            glyphNote.textContent = 'index ' + index;
+        }
+    }
+
+    cells.forEach(function (c) {
+        c.addEventListener('click', function () {
+            var on = c.classList.toggle('on');
+            c.setAttribute('aria-pressed', on ? 'true' : 'false');
+            readout();
+        });
+    });
+
+    // Staggered light-up on load, then show the starting glyph
+    window.addEventListener('load', function () {
+        cells.forEach(function (c, i) {
+            setTimeout(function () { c.classList.add('lit'); }, 90 * i);
+        });
+        readout();
+    });
+    readout();
+</script>
 </body>
 </html>
