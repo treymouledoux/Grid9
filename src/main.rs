@@ -88,7 +88,18 @@ fn main() {
                     Config::default()
                 };
 
+                if cfg.min_grid9_ver.as_str() > env!("CARGO_PKG_VERSION") {
+                    logf!(Warning, "This script was made for a newer version of Grid9, it may not work as intended, continuing anyways...")
+                }
+
+                if cfg.show_metadata {
+                    println!("\x1b[32mAUTHOR\x1b[0m: {}", cfg.author);
+                    println!("\x1b[32mDESCRIPTION\x1b[0m: {}", cfg.description);
+                    println!("\x1b[32mVERSION\x1b[0m: {}", cfg.version)
+                }
+
                 // TODO: parse code and then interpret
+                
             } else {
                 if example {
                     logf!(
