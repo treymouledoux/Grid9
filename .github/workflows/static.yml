@@ -4,10 +4,10 @@ name: Deploy static content to Pages
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["rust"]
+    branches: ["main"]
     paths: ["src/components/documentation/**"]
   pull_request:
-    branches: ["rust"]
+    branches: ["main"]
     paths: ["src/components/documentation/**"]
 
   # Allows you to run this workflow manually from the Actions tab
