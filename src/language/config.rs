@@ -4,17 +4,17 @@ use std::path::Path;
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    pub config_ver: u8,       // Config Version: no toml key
+    pub config_ver: u8,        // Config Version: no toml key
     pub min_grid9_ver: String, // Minimum Grid9 version: metadata
-    pub author: String,       // Script author: metadata
-    pub description: String,  // Script description: metadata
-    pub version: String,      // Script version: metadata
-    pub show_metadata: bool,  // Show metadata: config
-    pub advanced_parse: bool, // Advanced parsing option: config
-    pub dont_cache: bool,     // Enable Cache option: config
-    pub echo_grid_mod: bool,  // Show grid transmutation option: config
-    pub no_log: bool,         // Logging toggle: config
-    pub verbosity: u8,        // Interpreter verbosity: config
+    pub author: String,        // Script author: metadata
+    pub description: String,   // Script description: metadata
+    pub version: String,       // Script version: metadata
+    pub show_metadata: bool,   // Show metadata: config
+    pub advanced_parse: bool,  // Advanced parsing option: config
+    pub dont_cache: bool,      // Enable Cache option: config
+    pub echo_grid_mod: bool,   // Show grid transmutation option: config
+    pub no_log: bool,          // Logging toggle: config
+    pub verbosity: u8,         // Interpreter verbosity: config
 }
 
 // Defaults used when config is missing entirely or when keys are omitted.
