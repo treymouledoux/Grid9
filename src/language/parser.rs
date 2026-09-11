@@ -1,9 +1,9 @@
 use std::{
-    fmt::Write as _,
     fs::read_to_string,
     path::{Path, PathBuf},
 };
 
+use regex::Regex;
 use scorched::{
     LogData, LogExpect,
     LogImportance::{self, *},
@@ -60,7 +60,70 @@ pub fn parse(file_path: &PathBuf, mut cfg: Config) -> String {
         });
     }
 
-    let mut parsed_code = file;
+    let mut parsed_code = file
+        .replace(|c: char| c.is_ascii_uppercase(), "")
+        .replace([' ', '\n'], "")
+        .replace("b0", "");
+
+    // Cleans out empty if and while statements
+    if cfg.advanced_parse {
+        let re = Regex::new(r"(?:i\d+[=!][01]\}|w\d+[=!][01]\])").unwrap();
+        parsed_code = re.replace_all(&parsed_code, "").into_owned();
+    }
+
+    let chars: Vec<char> = parsed_code.chars().collect();
+    let mut i = 0;
+
+    let mut if_depth: i8 = 0;
+    let mut while_depth: i8 = 0;
+    let mut is_exited = false;
+
+    while i < chars.len() {
+        match chars[i] {
+            's' => {}
+            'f' => {}
+            'a' => {}
+            'p' => {}
+            'q' => {
+                if matches!(chars.get(i + 1), Some('s' | 'c')) {
+                    i += 1;
+                    continue;
+                } else {
+                    logf!(Error, "Invalid operation for queue command");
+                }
+            }
+            'i' => {}
+            'w' => {}
+            'e' => {}
+            'g' => {}
+            'b' => {}
+            'd' => {}
+            't' => {}
+            _ => {}
+        }
+
+        if if_depth < 0 {
+            let id_error_msg = "If depth is less than 0, ";
+            if chars[chars.len() - 1] == '}' {
+                //TODO: take user input on possible action to ignore extra closing char at end
+                logf!(Error, "{}possible fix found", id_error_msg);
+            } else {
+                logf!(Error, "{}no auto fixes found", id_error_msg);
+            }
+        }
+
+        if while_depth < 0 {
+            let wd_error_msg = "While depth is less than 0, ";
+            if chars[chars.len() - 1] == ']' {
+                logf!(Error, "{}possible fix found", wd_error_msg);
+                //TODO: take user input on possible action to ignore extra closing char at end
+            } else {
+                logf!(Error, "{}no auto fixes found", wd_error_msg);
+            }
+        }
+
+        i += 1;
+    }
 
     parsed_code
 }

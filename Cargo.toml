@@ -7,7 +7,8 @@ edition = "2024"
 scorched = "0.5.*" # Maintained by Trey Mouledoux
 ver-cmp = "0.1.*"  # Maintained by Trey Mouledoux
 clap = { version = "4.6.*", features = ["derive"] }
-dirs = "6.*.*"
+dirs = "7.*.*"
 serde = { version = "1.0.*", features = ["derive"] }
 toml = "1.1.*"
 sha2 = "0.11.*"
+regex = "1.13.*"
