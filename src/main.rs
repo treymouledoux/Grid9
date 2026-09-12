@@ -1,7 +1,10 @@
 mod file_man;
 mod language;
 
-use std::path::Path;
+use std::{
+    cmp::Ordering,
+    path::{Path, PathBuf},
+};
 
 use file_man::*;
 use language::{
@@ -15,6 +18,9 @@ use scorched::{
     LogImportance::{self, Error, Warning},
     logf, set_logging_path,
 };
+use ver_cmp::compare_versions;
+
+use crate::language::parser::parse;
 
 #[derive(Parser)]
 #[command(name = "Grid9", version, about = "Grid9 CLI")]
@@ -65,6 +71,11 @@ fn main() {
         Command::Version => println!("Version: {}", env!("CARGO_PKG_VERSION")),
         Command::Documentation => println!("Docs: https://treymouledoux.github.io/Grid9/"),
         Command::Interpret { example, input } => {
+            let input = match input.ends_with(".g9") {
+                true => input,
+                false => format!("{}.g9", input),
+            };
+
             let path = match example {
                 true => {
                     format!(
@@ -88,11 +99,24 @@ fn main() {
                     Config::default()
                 };
 
-                if cfg.min_grid9_ver.as_str() > env!("CARGO_PKG_VERSION") {
-                    logf!(
-                        Warning,
-                        "This script was made for a newer version of Grid9, it may not work as intended, continuing anyways..."
-                    )
+                match compare_versions(cfg.min_grid9_ver.as_str(), env!("CARGO_PKG_VERSION")) {
+                    Ok(Ordering::Greater) => {
+                        logf!(
+                            Warning,
+                            "This script was made for a newer version of Grid9, it may not work as intended, continuing anyways..."
+                        )
+                    }
+                    Ok(Ordering::Equal) | Ok(Ordering::Less) => {
+                        if cfg.verbosity >= 2 {
+                            logf!(Info, "Script within installed Grid9 compatability range")
+                        }
+                    }
+                    Err(_) => {
+                        logf!(
+                            Error,
+                            "Failed to parse script version, please check script config"
+                        )
+                    }
                 }
 
                 if cfg.show_metadata {
@@ -102,6 +126,7 @@ fn main() {
                 }
 
                 // TODO: parse code and then interpret
+                parse(&PathBuf::from(path), cfg);
             } else {
                 if example {
                     logf!(
