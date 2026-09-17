@@ -34,7 +34,7 @@ Every multi-word key is now `snake_case` (previously camelCase), and loading is 
  - **Old/unknown keys are ignored silently.** For example any leftover camelCase key (`advancedParse`, `noLog`, …) is skipped without warning and silently applies defaults.
  - **The `[experiments]` table is gone.** `exampleExperiment` and the whole table are no longer read, remove them because of complete removal of functionality.
 
-For a complete before/after mapping and a ready-to-copy migrated config, see [migration.md](./migration.md).
+For a complete before/after mapping and a ready-to-copy migrated config, see the [migration guide](src/components/examples/README.md).
 
 ## Preprocessor (new?)
 
