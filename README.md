@@ -2,13 +2,15 @@
 
 Grid9 is an esoteric interpreted language based on a 3x3 grid of zeros and ones.
 
-> [!WARNING]
-> The Rust re-write introduces breaking changes to config files due to changing to snake case, configs must be manually migrated, for more information read [here](https://github.com/treymouledoux/Grid9/blob/rust/src/components/examples/migration.md)
+[![Nightly Release](https://github.com/treymouledoux/Grid9/actions/workflows/nightly.yml/badge.svg)](https://github.com/treymouledoux/Grid9/actions/workflows/nightly.yml)
+
+> [!NOTE]
+> The Rust rewrite introduces new language features and reworked tooling that may need migration. For a
+> full breakdown of what changed see [feature_changes.md](feature_changes.md).
 
 > [!CAUTION]
-> This branch of the project is still under HEAVY construction, the language may not act or behave as expected, expect bugs and issues
+> The `rust` branch is under heavy construction. Anything documented here may change, and the language may not yet behave as described. Expect bugs.
 
-[![Nightly Release](https://github.com/treymouledoux/Grid9/actions/workflows/nightly.yml/badge.svg)](https://github.com/treymouledoux/Grid9/actions/workflows/nightly.yml)
 
 ## Installation
 
