@@ -6,7 +6,7 @@ show_metadata = true
 min_grid9_ver = "2026.1.0"
 
 [config]
-advanced_parse = true
+advanced_preprocess = true
 dont_cache = false
 echo_grid_mod = false
 no_log = false
