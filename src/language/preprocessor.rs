@@ -1,5 +1,6 @@
 use std::{
     fs::read_to_string,
+    io::stdin,
     path::{Path, PathBuf},
 };
 
@@ -52,8 +53,8 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
                 .log_expect(Error, "Failed to load preprocessor cache"),
             file_hash
         )))
-        .unwrap_or({
-            logf!(Warning, "Failed to read found cached preprocessed code, forcing repreprocess, it is recommended to clean your cache dirrectory with the following command: grid9 c preprocessor_cache");
+        .unwrap_or_else(|_| {
+            logf!(Warning, "Failed to read found cached preprocessed code, forcing repreprocess, it is recommended to clean your cache directory with the following command: grid9 c preprocessor_cache");
 
             cfg.dont_cache = true;
             preprocess(file_path, cfg)
@@ -113,31 +114,70 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
             _ => {}
         }
 
-        if if_depth < 0 {
-            let id_error_msg = "If depth is less than 0, ";
-            if chars[chars.len() - 1] == '}' {
-                //TODO: take user input on possible action to ignore extra closing char at end
-                logf!(Error, "{}possible fix found", id_error_msg);
-            } else {
-                logf!(Error, "{}no auto fixes found", id_error_msg);
-            }
-        }
-
-        if while_depth < 0 {
-            let wd_error_msg = "While depth is less than 0, ";
-            if chars[chars.len() - 1] == ']' {
-                logf!(Error, "{}possible fix found", wd_error_msg);
-                //TODO: take user input on possible action to ignore extra closing char at end
-            } else {
-                logf!(Error, "{}no auto fixes found", wd_error_msg);
-            }
-        }
-
         i += 1;
+    }
+
+    while if_depth < 0 {
+        let id_error_msg = "If depth is less than 0, ";
+        if preprocessed_code.ends_with('}') {
+            logf!(Warning, "{}possible fix found", id_error_msg);
+            if prompt_user_continue() {
+                preprocessed_code.pop();
+                if_depth += 1;
+            } else {
+                break;
+            }
+        } else {
+            logf!(Warning, "{}no auto fixes found", id_error_msg);
+            break;
+        }
+    }
+
+    while while_depth < 0 {
+        let wd_error_msg = "While depth is less than 0, ";
+        if preprocessed_code.ends_with(']') {
+            logf!(Warning, "{}possible fix found", wd_error_msg);
+            if prompt_user_continue() {
+                preprocessed_code.pop();
+                while_depth += 1;
+            } else {
+                break;
+            }
+        } else {
+            logf!(Warning, "{}no auto fixes found", wd_error_msg);
+            break;
+        }
     }
 
     //TODO: Debug line
     println!("{}", preprocessed_code);
 
+    if !cfg.dont_cache {
+        //TODO: Write finished preprocessed code to cache
+    }
+
     preprocessed_code
+}
+
+fn prompt_user_continue() -> bool {
+    print!("Would you like to continue with the action? (y/n): ");
+    let mut input = String::new();
+
+    match stdin().read_line(&mut input) {
+        Ok(_) => match input.chars().next() {
+            Some('y') => true,
+            Some('n') => false,
+            _ => {
+                logf!(
+                    Warning,
+                    "Invalid response from user, continuing without action"
+                );
+                false
+            }
+        },
+        Err(e) => {
+            logf!(Warning, "Failed to get user input: {}", e);
+            false
+        }
+    }
 }
