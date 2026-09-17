@@ -4,17 +4,17 @@ use std::path::Path;
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    pub config_ver: u8,        // Config Version: no toml key
-    pub min_grid9_ver: String, // Minimum Grid9 version: metadata
-    pub author: String,        // Script author: metadata
-    pub description: String,   // Script description: metadata
-    pub version: String,       // Script version: metadata
-    pub show_metadata: bool,   // Show metadata: config
-    pub advanced_parse: bool,  // Advanced parsing option: config
-    pub dont_cache: bool,      // Enable Cache option: config
-    pub echo_grid_mod: bool,   // Show grid transmutation option: config
-    pub no_log: bool,          // Logging toggle: config
-    pub verbosity: u8,         // Interpreter verbosity: config
+    pub config_ver: u8,            // Config Version: no toml key
+    pub min_grid9_ver: String,     // Minimum Grid9 version: metadata
+    pub author: String,            // Script author: metadata
+    pub description: String,       // Script description: metadata
+    pub version: String,           // Script version: metadata
+    pub show_metadata: bool,       // Show metadata: config
+    pub advanced_preprocess: bool, // Advanced preprocessing option: config
+    pub dont_cache: bool,          // Enable Cache option: config
+    pub echo_grid_mod: bool,       // Show grid transmutation option: config
+    pub no_log: bool,              // Logging toggle: config
+    pub verbosity: u8,             // Interpreter verbosity: config
 }
 
 // Defaults used when config is missing entirely or when keys are omitted.
@@ -27,7 +27,7 @@ impl Default for Config {
             description: "empty".to_owned(),
             version: "0.1.0".to_owned(),
             show_metadata: false,
-            advanced_parse: true,
+            advanced_preprocess: true,
             dont_cache: false,
             echo_grid_mod: false,
             no_log: false,
@@ -57,7 +57,7 @@ struct Metadata {
 #[derive(Debug, Deserialize)]
 #[serde(default)]
 struct Options {
-    advanced_parse: bool,
+    advanced_preprocess: bool,
     dont_cache: bool,
     echo_grid_mod: bool,
     no_log: bool,
@@ -81,7 +81,7 @@ impl Default for Options {
     fn default() -> Self {
         let d = Config::default();
         Options {
-            advanced_parse: d.advanced_parse,
+            advanced_preprocess: d.advanced_preprocess,
             dont_cache: d.dont_cache,
             echo_grid_mod: d.echo_grid_mod,
             no_log: d.no_log,
@@ -99,7 +99,7 @@ impl From<RawConfig> for Config {
             description: r.metadata.description,
             version: r.metadata.version,
             show_metadata: r.metadata.show_metadata,
-            advanced_parse: r.config.advanced_parse,
+            advanced_preprocess: r.config.advanced_preprocess,
             dont_cache: r.config.dont_cache,
             echo_grid_mod: r.config.echo_grid_mod,
             no_log: r.config.no_log,

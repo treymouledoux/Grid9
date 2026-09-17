@@ -11,9 +11,9 @@ use scorched::{
 };
 use sha2::{Digest, Sha256};
 
-use crate::{file_man::PARSER_CACHE_DIR, language::config::Config};
+use crate::{file_man::PREPROCESSOR_CACHE_DIR, language::config::Config};
 
-pub fn parse(file_path: &PathBuf, mut cfg: Config) -> String {
+pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
     if cfg.verbosity >= 2 {
         logf!(Info, "Parsing script");
     }
@@ -24,54 +24,55 @@ pub fn parse(file_path: &PathBuf, mut cfg: Config) -> String {
         .iter()
         .map(|b| format!("{b:02x}"))
         .collect();
-    if cfg.advanced_parse {
+    if cfg.advanced_preprocess {
         file_hash.push_str("_ap");
     }
 
-    // Checks to allow parser cache load if dont_cache is false and if a file exists with the same hash
+    // Checks to allow preprocessor cache load if dont_cache is false and if a file exists with the same hash
     if !cfg.dont_cache
         && Path::new(&format!(
             "{}/{}.g9",
-            PARSER_CACHE_DIR
+            PREPROCESSOR_CACHE_DIR
                 .clone()
                 .into_string()
-                .log_expect(Error, "Failed to load parser cache"),
+                .log_expect(Error, "Failed to load preprocessor cache"),
             file_hash
         ))
         .exists()
     {
         if cfg.verbosity >= 1 {
-            logf!(Info, "Loading cached code from parser cache");
+            logf!(Info, "Loading cached code from preprocessor cache");
         }
-
-        cfg.dont_cache = true;
 
         return read_to_string(Path::new(&format!(
             "{}/{}.g9",
-            PARSER_CACHE_DIR
+            PREPROCESSOR_CACHE_DIR
                 .clone()
                 .into_string()
-                .log_expect(Error, "Failed to load parser cache"),
+                .log_expect(Error, "Failed to load preprocessor cache"),
             file_hash
         )))
         .unwrap_or({
-            logf!(Warning, "Failed to read found cached parsed code, forcing reparse, it is recommended to clean your cache dirrectory with the following command: grid9 c parser_cache");
-            parse(file_path, cfg)
+            logf!(Warning, "Failed to read found cached preprocessed code, forcing repreprocess, it is recommended to clean your cache dirrectory with the following command: grid9 c preprocessor_cache");
+
+            cfg.dont_cache = true;
+            preprocess(file_path, cfg)
         });
     }
 
-    let mut parsed_code = file
+    // Comment cleanup
+    let mut preprocessed_code = file
         .replace(|c: char| c.is_ascii_uppercase(), "")
-        .replace([' ', '\n'], "")
-        .replace("b0", "");
+        .replace([' ', '\n'], "");
 
-    // Cleans out empty if and while statements
-    if cfg.advanced_parse {
+    // Advanced parse
+    if cfg.advanced_preprocess {
         let re = Regex::new(r"(?:i\d+[=!][01]\}|w\d+[=!][01]\])").unwrap();
-        parsed_code = re.replace_all(&parsed_code, "").into_owned();
+        preprocessed_code = re.replace_all(&preprocessed_code, "").into_owned();
+        preprocessed_code = preprocessed_code.replace("b0", "");
     }
 
-    let chars: Vec<char> = parsed_code.chars().collect();
+    let chars: Vec<char> = preprocessed_code.chars().collect();
     let mut i = 0;
 
     let mut if_depth: i8 = 0;
@@ -87,13 +88,23 @@ pub fn parse(file_path: &PathBuf, mut cfg: Config) -> String {
             'q' => {
                 if matches!(chars.get(i + 1), Some('s' | 'c')) {
                     i += 1;
-                    continue;
                 } else {
                     logf!(Error, "Invalid operation for queue command");
+                    std::process::exit(1);
                 }
             }
-            'i' => {}
-            'w' => {}
+            'i' => {
+                if_depth += 1;
+            }
+            '}' => {
+                if_depth -= 1;
+            }
+            'w' => {
+                while_depth += 1;
+            }
+            ']' => {
+                while_depth -= 1;
+            }
             'e' => {}
             'g' => {}
             'b' => {}
@@ -125,5 +136,8 @@ pub fn parse(file_path: &PathBuf, mut cfg: Config) -> String {
         i += 1;
     }
 
-    parsed_code
+    //TODO: Debug line
+    println!("{}", preprocessed_code);
+
+    preprocessed_code
 }

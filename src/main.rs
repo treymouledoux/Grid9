@@ -20,7 +20,7 @@ use scorched::{
 };
 use ver_cmp::compare_versions;
 
-use crate::language::parser::parse;
+use crate::language::preprocessor::preprocess;
 
 #[derive(Parser)]
 #[command(name = "Grid9", version, about = "Grid9 CLI")]
@@ -125,8 +125,8 @@ fn main() {
                     println!("\x1b[32mVERSION\x1b[0m: {}", cfg.version)
                 }
 
-                // TODO: parse code and then interpret
-                parse(&PathBuf::from(path), cfg);
+                // TODO: preprocess code and then interpret
+                preprocess(&PathBuf::from(path), cfg);
             } else {
                 if example {
                     logf!(
@@ -145,20 +145,20 @@ fn main() {
             let result = match mode.as_str() {
                 "encode" => encode(&input), // char -> glyph codes
                 "decode" => decode(&input), // glyph codes -> char
-                _ => unreachable!("clap value_parser restricts mode to char|glyph"),
+                _ => unreachable!("clap value_preprocessor restricts mode to char|glyph"),
             };
 
             match result {
                 Some(out) => println!("{}", out),
                 None => {
-                    logf!(Warning, "Conversion failed for {input:?}");
+                    logf!(Error, "Conversion failed for {input:?}");
                     std::process::exit(1);
                 }
             }
         }
         Command::Clean { folder } => match folder.as_str() {
-            "parser_cache" | "parser" => {
-                file_man::clean(file_man::Dir::ParserCache);
+            "preprocessor_cache" | "preprocessor" => {
+                file_man::clean(file_man::Dir::PreprocessorCache);
             }
             "logs" | "log" => {
                 file_man::clean(file_man::Dir::Logs);
@@ -169,9 +169,9 @@ fn main() {
             _ => {
                 logf!(
                     Warning,
-                    "Invalid folder name '{folder}', try any of the following 'parser_cache', 'parser'; 'logs', 'log'; or 'temp', 'all', 'a'."
+                    "Invalid folder name '{folder}', try any of the following 'preprocessor_cache', 'preprocessor'; 'logs', 'log'; or 'temp', 'all', 'a'."
                 );
-                std::process::exit(1);
+                std::process::exit(2);
             }
         },
     }
