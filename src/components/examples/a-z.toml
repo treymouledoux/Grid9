@@ -1,0 +1,13 @@
+[metadata]
+author = "treymouledoux"
+description = "Prints out the whole alphabet a-z"
+version = "1.0.0"
+show_metadata = true
+min_grid9_ver = "2026.1.0"
+
+[config]
+advanced_preprocess = true
+dont_cache = false
+echo_grid_mod = false
+no_log = false
+verbosity = 1
