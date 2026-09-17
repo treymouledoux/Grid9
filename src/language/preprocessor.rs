@@ -78,9 +78,11 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
 
     let mut if_depth: i8 = 0;
     let mut while_depth: i8 = 0;
+    //TODO: See if this is still needed
     let mut is_exited = false;
 
     while i < chars.len() {
+        //TODO: Finish command validation code
         match chars[i] {
             's' => {}
             'f' => {}
@@ -133,19 +135,35 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
         }
     }
 
-    while while_depth < 0 {
-        let wd_error_msg = "While depth is less than 0, ";
-        if preprocessed_code.ends_with(']') {
-            logf!(Warning, "{}possible fix found", wd_error_msg);
-            if prompt_user_continue() {
-                preprocessed_code.pop();
-                while_depth += 1;
-            } else {
+    while if_depth < 0 || while_depth < 0 {
+        match preprocessed_code.chars().last() {
+            Some('}') if if_depth < 0 => {
+                logf!(Warning, "If depth is less than 0, possible fix found");
+                if prompt_user_continue() {
+                    preprocessed_code.pop();
+                    if_depth += 1;
+                } else {
+                    break;
+                }
+            }
+            Some(']') if while_depth < 0 => {
+                logf!(Warning, "While depth is less than 0, possible fix found");
+                if prompt_user_continue() {
+                    preprocessed_code.pop();
+                    while_depth += 1;
+                } else {
+                    break;
+                }
+            }
+            _ => {
+                logf!(
+                    Warning,
+                    "No auto fixes found for negative control flow depth: (if_depth: {} while_depth: {})",
+                    if_depth,
+                    while_depth
+                );
                 break;
             }
-        } else {
-            logf!(Warning, "{}no auto fixes found", wd_error_msg);
-            break;
         }
     }
 
@@ -160,7 +178,7 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
 }
 
 fn prompt_user_continue() -> bool {
-    print!("Would you like to continue with the action? (y/n): ");
+    println!("Would you like to continue with this action? (y/n): ");
     let mut input = String::new();
 
     match stdin().read_line(&mut input) {
