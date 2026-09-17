@@ -3,7 +3,7 @@
 This document tracks language and tooling changes introduced by the Rust rewrite (the `rust` branch) compared to the original Nim implementation.
 
 > [!NOTE]
-> Migrating an existing config? The full key-by-key mapping lives in [migration.md](src/components/examples/migration.md).
+> Migrating an existing config? The full key-by-key mapping lives in the [migration guide](migration.md).
 
 ## Conditional operators (new)
 
@@ -34,7 +34,7 @@ Every multi-word key is now `snake_case` (previously camelCase), and loading is 
  - **Old/unknown keys are ignored silently.** For example any leftover camelCase key (`advancedParse`, `noLog`, …) is skipped without warning and silently applies defaults.
  - **The `[experiments]` table is gone.** `exampleExperiment` and the whole table are no longer read, remove them because of complete removal of functionality.
 
-For a complete before/after mapping and a ready-to-copy migrated config, see the [migration guide](src/components/examples/README.md).
+For a complete before/after mapping and a ready-to-copy migrated config, see the [migration guide](migration.md).
 
 ## Preprocessor (new?)
 
