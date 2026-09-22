@@ -28,15 +28,16 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
     if cfg.advanced_preprocess {
         file_hash.push_str("_ap");
     }
+    let cache_dir = PREPROCESSOR_CACHE_DIR
+                .clone()
+                .into_string()
+                .log_expect(Error, "Failed to load preprocessor cache");
 
     // Checks to allow preprocessor cache load if dont_cache is false and if a file exists with the same hash
     if !cfg.dont_cache
         && Path::new(&format!(
             "{}/{}.g9",
-            PREPROCESSOR_CACHE_DIR
-                .clone()
-                .into_string()
-                .log_expect(Error, "Failed to load preprocessor cache"),
+            cache_dir,
             file_hash
         ))
         .exists()
@@ -47,10 +48,7 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
 
         return read_to_string(Path::new(&format!(
             "{}/{}.g9",
-            PREPROCESSOR_CACHE_DIR
-                .clone()
-                .into_string()
-                .log_expect(Error, "Failed to load preprocessor cache"),
+            cache_dir,
             file_hash
         )))
         .unwrap_or_else(|_| {
@@ -167,11 +165,17 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
         }
     }
 
-    //TODO: Debug line
+    //FIXME: Debug lines
     println!("{}", preprocessed_code);
+    println!("{}/{}.g9", cache_dir, file_hash);
 
     if !cfg.dont_cache {
-        //TODO: Write finished preprocessed code to cache
+        match std::fs::write(format!("{}/{}.g9", cache_dir, file_hash), &preprocessed_code) {
+            Ok(_) => {
+                return preprocessed_code;
+            }
+            Err(e) => logf!(Warning, "Failed to write preprocessed file to preprocessor cache: {}", e)
+        }
     }
 
     preprocessed_code
