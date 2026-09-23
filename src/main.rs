@@ -20,7 +20,7 @@ use scorched::{
 };
 use ver_cmp::compare_versions;
 
-use crate::language::preprocessor::preprocess;
+use crate::language::{interpreter::interpret, preprocessor::preprocess};
 
 #[derive(Parser)]
 #[command(name = "Grid9", version, about = "Grid9 CLI")]
@@ -125,8 +125,8 @@ fn main() {
                     println!("\x1b[32mVERSION\x1b[0m: {}", cfg.version)
                 }
 
-                // TODO: preprocess code and then interpret
-                preprocess(&PathBuf::from(path), cfg);
+                let preprocessed_code = preprocess(&PathBuf::from(path), cfg.clone());
+                interpret(&preprocessed_code, cfg);
             } else {
                 if example {
                     logf!(
