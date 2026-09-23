@@ -12,7 +12,18 @@ use scorched::{
 };
 use sha2::{Digest, Sha256};
 
-use crate::{file_man::PREPROCESSOR_CACHE_DIR, language::config::Config};
+use crate::{
+    file_man::PREPROCESSOR_CACHE_DIR,
+    language::{
+        config::Config,
+        preprocessor::ControlDepth::{If, While},
+    },
+};
+
+enum ControlDepth {
+    If,
+    While,
+}
 
 pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
     if cfg.verbosity >= 2 {
@@ -29,19 +40,12 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
         file_hash.push_str("_ap");
     }
     let cache_dir = PREPROCESSOR_CACHE_DIR
-                .clone()
-                .into_string()
-                .log_expect(Error, "Failed to load preprocessor cache");
+        .clone()
+        .into_string()
+        .log_expect(Error, "Failed to load preprocessor cache");
 
     // Checks to allow preprocessor cache load if dont_cache is false and if a file exists with the same hash
-    if !cfg.dont_cache
-        && Path::new(&format!(
-            "{}/{}.g9",
-            cache_dir,
-            file_hash
-        ))
-        .exists()
-    {
+    if !cfg.dont_cache && Path::new(&format!("{}/{}.g9", cache_dir, file_hash)).exists() {
         if cfg.verbosity >= 1 {
             logf!(Info, "Loading cached code from preprocessor cache");
         }
@@ -74,18 +78,53 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
     let chars: Vec<char> = preprocessed_code.chars().collect();
     let mut i = 0;
 
-    let mut if_depth: i8 = 0;
-    let mut while_depth: i8 = 0;
-    //TODO: See if this is still needed
-    let mut is_exited = false;
+    let mut control_depth: Vec<ControlDepth> = Vec::new();
 
     while i < chars.len() {
-        //TODO: Finish command validation code
+        //TODO: Redo some error messages and make them more specfic other than a general missing / invalid message
         match chars[i] {
-            's' => {}
-            'f' => {}
-            'a' => {}
-            'p' => {}
+            's' => {
+                if chars.get(i + 1).is_some_and(|c| ('0'..='8').contains(c)) {
+                    i += 1;
+                    if matches!(chars.get(i + 1), Some('0' | '1')) {
+                        i += 1;
+                    } else {
+                        logf!(Error, "Invalid or missing set value for set command");
+                        std::process::exit(1);
+                    }
+                } else {
+                    logf!(Error, "Invalid or missing grid cell for set command");
+                    std::process::exit(1);
+                }
+            }
+            'f' => {
+                if chars.get(i + 1).is_some_and(|c| ('0'..='8').contains(c)) {
+                    i += 1;
+                } else {
+                    logf!(Error, "Invalid or missing grid cell for flip command");
+                    std::process::exit(1);
+                }
+            }
+            'a' => {
+                if matches!(chars.get(i + 1), Some('0' | '1' | 'r')) {
+                    i += 1;
+                } else {
+                    match chars.get(i + 1) {
+                        Some(set_value) => {
+                            logf!(
+                                Error,
+                                "Invalid set value for set all command: {}",
+                                set_value
+                            );
+                        }
+                        None => {
+                            logf!(Error, "Missing set value for set all command");
+                        }
+                    }
+                    std::process::exit(1);
+                }
+            }
+            'p' | 't' => {}
             'q' => {
                 if matches!(chars.get(i + 1), Some('s' | 'c')) {
                     i += 1;
@@ -94,87 +133,137 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
                     std::process::exit(1);
                 }
             }
-            'i' => {
-                if_depth += 1;
+            'i' | 'w' => {
+                let (kind, name) = if chars[i] == 'i' {
+                    (If, "if")
+                } else {
+                    (While, "while")
+                };
+                i = validate_condition(&chars, i, name);
+                control_depth.push(kind);
             }
             '}' => {
-                if_depth -= 1;
-            }
-            'w' => {
-                while_depth += 1;
+                if control_depth
+                    .pop_if(|c| matches!(c, ControlDepth::If))
+                    .is_none()
+                {
+                    logf!(Error, "Invalid exit of if statement when not avalible");
+                    std::process::exit(1);
+                }
             }
             ']' => {
-                while_depth -= 1;
+                if control_depth
+                    .pop_if(|c| matches!(c, ControlDepth::While))
+                    .is_none()
+                {
+                    logf!(Error, "Invalid exit of while statement when not avalible");
+                    std::process::exit(1);
+                }
             }
-            'e' => {}
-            'g' => {}
-            'b' => {}
-            'd' => {}
-            't' => {}
-            _ => {}
+            'e' => match control_depth.pop() {
+                Some(_) => {}
+                None => {
+                    logf!(
+                        Error,
+                        "Unable to exit control flow due to control depth being zero"
+                    );
+                    std::process::exit(1);
+                }
+            },
+            'g' => {
+                if chars.get(i + 1).is_some() {
+                    match chars.get(i + 1).unwrap() {
+                        //TODO: Finish grid command to finish preprocessor validation
+                        'g' => {}
+                        's' | 'l' => {}
+                        'm' => {}
+                        'x' => {}
+                        _ => {
+                            logf!(
+                                Error,
+                                "Invalid subcommand provided to grid statement: {}",
+                                chars.get(i + 1).unwrap()
+                            );
+                            std::process::exit(1);
+                        }
+                    }
+                } else {
+                    logf!(Error, "No subcommand provided to grid statement");
+                    std::process::exit(1);
+                }
+            }
+            'b' | 'd' => {
+                let start = i + 1;
+                let mut j = start;
+                while chars.get(j).is_some_and(|c| c.is_ascii_digit()) {
+                    j += 1;
+                }
+                if j == start {
+                    logf!(
+                        Error,
+                        "Missing numeric argument for {} command at {}",
+                        chars[i],
+                        i
+                    );
+                    std::process::exit(1);
+                }
+                i = j - 1;
+            }
+            _ => {
+                logf!(
+                    Warning,
+                    "Invalid charcater {} found at index {}",
+                    chars.get(i).unwrap(),
+                    i
+                )
+            }
         }
 
         i += 1;
     }
 
-    while if_depth < 0 {
-        let id_error_msg = "If depth is less than 0, ";
-        if preprocessed_code.ends_with('}') {
-            logf!(Warning, "{}possible fix found", id_error_msg);
-            if prompt_user_continue() {
-                preprocessed_code.pop();
-                if_depth += 1;
-            } else {
-                break;
-            }
+    while let Some(block) = control_depth.last() {
+        let (closer, name) = match block {
+            If => ('}', "if"),
+            While => (']', "while"),
+        };
+
+        logf!(
+            Warning,
+            "Unclosed {} block at end of file, possible fix: append '{}'",
+            name,
+            closer
+        );
+        if prompt_user_continue() {
+            preprocessed_code.push(closer);
+            control_depth.pop();
         } else {
-            logf!(Warning, "{}no auto fixes found", id_error_msg);
             break;
         }
     }
 
-    while if_depth < 0 || while_depth < 0 {
-        match preprocessed_code.chars().last() {
-            Some('}') if if_depth < 0 => {
-                logf!(Warning, "If depth is less than 0, possible fix found");
-                if prompt_user_continue() {
-                    preprocessed_code.pop();
-                    if_depth += 1;
-                } else {
-                    break;
-                }
-            }
-            Some(']') if while_depth < 0 => {
-                logf!(Warning, "While depth is less than 0, possible fix found");
-                if prompt_user_continue() {
-                    preprocessed_code.pop();
-                    while_depth += 1;
-                } else {
-                    break;
-                }
-            }
-            _ => {
-                logf!(
-                    Warning,
-                    "No auto fixes found for negative control flow depth: (if_depth: {} while_depth: {})",
-                    if_depth,
-                    while_depth
-                );
-                break;
-            }
-        }
+    if !control_depth.is_empty() {
+        logf!(
+            Error,
+            "{} unclosed control-flow block(s) remain, cannot continue",
+            control_depth.len()
+        );
+        std::process::exit(1);
     }
 
-    //FIXME: Debug lines
-    println!("{}", preprocessed_code);
-    println!("{}/{}.g9", cache_dir, file_hash);
-
     if !cfg.dont_cache {
-        match std::fs::write(format!("{}/{}.g9", cache_dir, file_hash), &preprocessed_code) {
+        match std::fs::write(
+            format!("{}/{}.g9", cache_dir, file_hash),
+            &preprocessed_code,
+        ) {
             Ok(_) => {
                 return preprocessed_code;
             }
-            Err(e) => logf!(Warning, "Failed to write preprocessed file to preprocessor cache: {}", e)
+            Err(e) => logf!(
+                Warning,
+                "Failed to write preprocessed file to preprocessor cache: {}",
+                e
+            ),
         }
     }
 
@@ -202,4 +291,37 @@ fn prompt_user_continue() -> bool {
             false
         }
     }
+}
+
+fn validate_condition(chars: &[char], mut i: usize, name: &str) -> usize {
+    loop {
+        // cell [0-8], operator [=!], value [01]
+        if !chars.get(i + 1).is_some_and(|c| ('0'..='8').contains(c)) {
+            logf!(Error, "Invalid or missing grid cell for {} condition", name);
+            std::process::exit(1);
+        }
+        if !matches!(chars.get(i + 2), Some('=' | '!')) {
+            logf!(
+                Error,
+                "Invalid or missing comparison operator for {} condition",
+                name
+            );
+            std::process::exit(1);
+        }
+        if !matches!(chars.get(i + 3), Some('0' | '1')) {
+            logf!(
+                Error,
+                "Invalid or missing comparison value for {} condition",
+                name
+            );
+            std::process::exit(1);
+        }
+        i += 3;
+
+        match chars.get(i + 1) {
+            Some('&' | '|') => i += 1,
+            _ => break,
+        }
+    }
+    i
 }
