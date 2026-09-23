@@ -58,10 +58,10 @@ fn clear_dir(dir: &Path) -> std::io::Result<()> {
         let path = entry.path();
         if path.is_dir() {
             fs::remove_dir_all(&path)?;
-            logf!(Info, "Removed '{path:?}'");
+            logf!(Info, "Removed \"{}\"", path.into_string().unwrap());
         } else {
             fs::remove_file(&path)?;
-            logf!(Info, "Removed '{path:?}'")
+            logf!(Info, "Removed \"{}\"", path.into_string().unwrap())
         }
     }
     Ok(())
