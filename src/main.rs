@@ -90,6 +90,26 @@ fn main() {
                 false => input.clone(),
             };
 
+            if cfg!(debug_assertions)
+                && example
+                && input == "all.g9"
+                && let Ok(entries) = std::fs::read_dir(EXAMPLE_DIR.to_str().unwrap())
+            {
+                logf!(Info, "Test preprocessing all examples, skipping configs");
+
+                for entry in entries.flatten() {
+                    let path = entry.path();
+                    if path.extension().and_then(|e| e.to_str()) != Some("g9") {
+                        continue;
+                    }
+
+                    logf!(Info, "Test Preprocessing {:?}", path);
+                    preprocess(&path, Config::default());
+                }
+
+                return;
+            }
+
             if Path::new(&path).exists() {
                 // Checks and loads config
                 let config_path = format!("{}.toml", &path[..path.len() - 3]);
