@@ -20,6 +20,7 @@ use crate::{
     },
 };
 
+#[derive(PartialEq)]
 enum ControlDepth {
     If,
     While,
@@ -66,7 +67,7 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
     // Comment cleanup
     let mut preprocessed_code = file
         .replace(|c: char| c.is_ascii_uppercase(), "")
-        .replace([' ', '\n'], "");
+        .replace([' ', '\n', '\t', '\r'], "");
 
     // Advanced parse
     if cfg.advanced_preprocess {
@@ -142,21 +143,19 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
                 i = validate_condition(&chars, i, name);
                 control_depth.push(kind);
             }
-            '}' => {
-                if control_depth
-                    .pop_if(|c| matches!(c, ControlDepth::If))
-                    .is_none()
-                {
-                    logf!(Error, "Invalid exit of if statement when not avalible");
-                    std::process::exit(1);
-                }
-            }
-            ']' => {
-                if control_depth
-                    .pop_if(|c| matches!(c, ControlDepth::While))
-                    .is_none()
-                {
-                    logf!(Error, "Invalid exit of while statement when not avalible");
+            '}' | ']' => {
+                let (kind, name) = if chars[i] == '}' {
+                    (If, "if")
+                } else {
+                    (While, "while")
+                };
+
+                if control_depth.pop_if(|c| *c == kind).is_none() {
+                    logf!(
+                        Error,
+                        "Invalid exit of {} statement when not avalible",
+                        name
+                    );
                     std::process::exit(1);
                 }
             }
@@ -172,17 +171,36 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
             },
             'g' => {
                 if chars.get(i + 1).is_some() {
-                    match chars.get(i + 1).unwrap() {
-                        //TODO: Finish grid command to finish preprocessor validation
+                    i += 1;
+                    match chars.get(i).unwrap() {
                         'g' => {}
-                        's' | 'l' => {}
-                        'm' => {}
-                        'x' => {}
+                        's' | 'l' | 'm' => {
+                            let sub = chars[i];
+                            i += 1;
+                            if !matches!(chars.get(i), Some('0'..='8')) {
+                                logf!(Error, "Invalid or missing grid id for grid \"{}\" command", sub);
+                                std::process::exit(1);
+                            }
+                        }
+                        'x' => {
+                            i += 1;
+                            if !matches!(chars.get(i), Some('0'..='8') | Some('c')) {
+                                match chars.get(i) {
+                                    Some(c) => logf!(
+                                        Error,
+                                        "Invalid grid id \"{}\" for grid xor command",
+                                        c
+                                    ),
+                                    None => logf!(Error, "Missing grid id for grid xor command"),
+                                }
+                                std::process::exit(1);
+                            }
+                        }
                         _ => {
                             logf!(
                                 Error,
                                 "Invalid subcommand provided to grid statement: {}",
-                                chars.get(i + 1).unwrap()
+                                chars.get(i).unwrap()
                             );
                             std::process::exit(1);
                         }
@@ -201,7 +219,7 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
                 if j == start {
                     logf!(
                         Error,
-                        "Missing numeric argument for {} command at {}",
+                        "Missing numeric argument for \"{}\" command at {}",
                         chars[i],
                         i
                     );
@@ -212,7 +230,7 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
             _ => {
                 logf!(
                     Warning,
-                    "Invalid charcater {} found at index {}",
+                    "Invalid charcater \"{}\" found at index {}",
                     chars.get(i).unwrap(),
                     i
                 )
