@@ -67,7 +67,7 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
     // Comment cleanup
     let mut preprocessed_code = file
         .replace(|c: char| c.is_ascii_uppercase(), "")
-        .replace([' ', '\n', '\t', '\r'], "");
+        .replace([' ', '\n', '\t', '\r', '(', ')', '.', ','], "");
 
     // Advanced parse
     if cfg.advanced_preprocess {
@@ -87,7 +87,7 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
             's' => {
                 if chars.get(i + 1).is_some_and(|c| ('0'..='8').contains(c)) {
                     i += 1;
-                    if matches!(chars.get(i + 1), Some('0' | '1')) {
+                    if matches!(chars.get(i + 1), Some('0' | '1' | 'r')) {
                         i += 1;
                     } else {
                         logf!(Error, "Invalid or missing set value for set command");
@@ -159,16 +159,15 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
                     std::process::exit(1);
                 }
             }
-            'e' => match control_depth.pop() {
-                Some(_) => {}
-                None => {
+            'e' => {
+                if control_depth.is_empty() {
                     logf!(
                         Error,
                         "Unable to exit control flow due to control depth being zero"
                     );
                     std::process::exit(1);
                 }
-            },
+            }
             'g' => {
                 if chars.get(i + 1).is_some() {
                     i += 1;
@@ -178,7 +177,11 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
                             let sub = chars[i];
                             i += 1;
                             if !matches!(chars.get(i), Some('0'..='8')) {
-                                logf!(Error, "Invalid or missing grid id for grid \"{}\" command", sub);
+                                logf!(
+                                    Error,
+                                    "Invalid or missing grid id for grid \"{}\" command",
+                                    sub
+                                );
                                 std::process::exit(1);
                             }
                         }
