@@ -1,4 +1,9 @@
-use std::{fs, path::Path, path::PathBuf, sync::LazyLock};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+    process::Command,
+    sync::LazyLock,
+};
 
 use scorched::{LogData, LogExpect, LogImportance, logf};
 
@@ -17,7 +22,10 @@ pub static EXAMPLE_DIR: LazyLock<PathBuf> = match cfg!(debug_assertions) {
     true => LazyLock::new(|| PathBuf::from(r"../../src/components/examples/")),
     false => LazyLock::new(|| DATA_DIR.join("examples")),
 };
-pub static DOCS_DIR: LazyLock<PathBuf> = LazyLock::new(|| DATA_DIR.join("documentation"));
+pub static DOCS_DIR: LazyLock<PathBuf> = match cfg!(debug_assertions) {
+    true => LazyLock::new(|| PathBuf::from(r"../../src/components/documentation/")),
+    false => LazyLock::new(|| DATA_DIR.join("documentation")),
+};
 
 pub enum Dir {
     All,
@@ -63,6 +71,25 @@ fn clear_dir(dir: &Path) -> std::io::Result<()> {
             fs::remove_file(&path)?;
             logf!(Info, "Removed \"{}\"", path.into_string().unwrap())
         }
+    }
+    Ok(())
+}
+
+pub fn open_in_browser(path: &Path) -> std::io::Result<()> {
+    #[cfg(target_os = "macos")]
+    {
+        Command::new("open").arg(path).spawn()?;
+    }
+    #[cfg(target_os = "windows")]
+    {
+        Command::new("cmd")
+            .args(["/C", "start", ""])
+            .arg(path)
+            .spawn()?;
+    }
+    #[cfg(target_os = "linux")]
+    {
+        Command::new("xdg-open").arg(path).spawn()?;
     }
     Ok(())
 }

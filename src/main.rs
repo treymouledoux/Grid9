@@ -69,7 +69,23 @@ fn main() {
             "Grid9 is a esoteric programming language based on a 3x3 grid of memory cells which you use to make 'glyphs' these 'glyphs' are used to output to the scripts terminal.\nThis language was developed by Trey Mouledoux in the Nim programming language but since has been reimplemented in Rust by Trey Mouledoux."
         ),
         Command::Version => println!("Version: {}", env!("CARGO_PKG_VERSION")),
-        Command::Documentation => println!("Docs: https://treymouledoux.github.io/Grid9/"),
+        Command::Documentation => {
+            if open_in_browser(Path::new(&format!(
+                "{}index.html",
+                DOCS_DIR.to_str().unwrap()
+            )))
+            .is_ok()
+            {
+                println!(
+                    "Opened local documentation in browser, online documentation is avalible here: https://treymouledoux.github.io/Grid9/"
+                );
+            } else {
+                logf!(
+                    Error,
+                    "Failed to open locally installed documentation, make sure this component is installed properly, online documentation is available at: https://treymouledoux.github.io/Grid9/"
+                );
+            };
+        }
         Command::Interpret { example, input } => {
             let input = match input.ends_with(".g9") {
                 true => input,
