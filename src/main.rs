@@ -9,7 +9,9 @@ use std::{
 use file_man::*;
 use language::{
     config::Config,
-    glyphs::{decode, encode},
+    glyphs::{decode, encode, parse_pattern},
+    interpreter::interpret,
+    preprocessor::preprocess,
 };
 
 use clap::{Parser, Subcommand};
@@ -19,8 +21,6 @@ use scorched::{
     logf, set_logging_path,
 };
 use ver_cmp::compare_versions;
-
-use crate::language::{interpreter::interpret, preprocessor::preprocess};
 
 #[derive(Parser)]
 #[command(name = "Grid9", version, about = "Grid9 CLI")]
@@ -180,8 +180,12 @@ fn main() {
         Command::Convert { mode, input } => {
             let result = match mode.as_str() {
                 "encode" => encode(&input), // char -> glyph codes
-                "decode" => decode(&input), // glyph codes -> char
-                _ => unreachable!("clap value_preprocessor restricts mode to char|glyph"),
+                "decode" => decode(
+                    parse_pattern(&input)
+                        .log_expect(Error, "Invalid input, must be a 9-digit binary number"),
+                )
+                .map(str::to_string), // glyph codes -> char
+                _ => unreachable!("clap value_preprocessor restricts mode to encode or decode"),
             };
 
             match result {

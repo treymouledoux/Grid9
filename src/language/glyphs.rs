@@ -257,12 +257,15 @@ pub const GLYPHS: &[&str] = &[
     "⚠️",
 ];
 
-pub fn decode(pattern: &str) -> Option<String> {
-    let index = usize::from_str_radix(pattern, 2).ok()?;
-    GLYPHS.get(index).copied().map(str::to_string)
+pub fn decode(index: usize) -> Option<&'static str> {
+    GLYPHS.get(index).copied()
 }
 
 pub fn encode(character: &str) -> Option<String> {
     let index = GLYPHS.iter().position(|&i| i == character)?;
     Some(format!("{index:09b}"))
+}
+
+pub fn parse_pattern(pattern: &str) -> Result<usize, std::num::ParseIntError> {
+    usize::from_str_radix(pattern, 2)
 }
