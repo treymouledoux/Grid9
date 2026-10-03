@@ -26,11 +26,15 @@ use ver_cmp::compare_versions;
 #[command(name = "Grid9", version, about = "Grid9 CLI")]
 struct Cli {
     #[command(subcommand)]
-    command: Command,
+    command: Option<Command>,
 }
 
 #[derive(Subcommand)]
 enum Command {
+    /// Install bundled documentation and examples and create user data directories.
+    #[command(hide = true)]
+    Setup,
+
     #[command(alias = "a")]
     About,
 
@@ -60,22 +64,23 @@ enum Command {
 }
 
 fn main() {
+    let cli = Cli::parse();
+    if let Err(error) = initialize() {
+        eprintln!("Failed to initialize Grid9 data directory: {error}");
+        std::process::exit(1);
+    }
     set_logging_path(LOG_DIR.to_str().expect("Failed to get logging dir"));
 
-    let cli = Cli::parse();
-
-    match cli.command {
+    // Desktop packages can be opened without arguments. Show the bundled docs
+    // instead of exiting with a CLI error when launched from Finder or Explorer.
+    match cli.command.unwrap_or(Command::Documentation) {
+        Command::Setup => println!("Grid9 components installed in {}", DATA_DIR.display()),
         Command::About => println!(
             "Grid9 is a esoteric programming language based on a 3x3 grid of memory cells which you use to make 'glyphs' these 'glyphs' are used to output to the scripts terminal.\nThis language was developed by Trey Mouledoux in the Nim programming language but since has been reimplemented in Rust by Trey Mouledoux."
         ),
         Command::Version => println!("Version: {}", env!("CARGO_PKG_VERSION")),
         Command::Documentation => {
-            if open_in_browser(Path::new(&format!(
-                "{}index.html",
-                DOCS_DIR.to_str().unwrap()
-            )))
-            .is_ok()
-            {
+            if open_in_browser(&DOCS_DIR.join("index.html")).is_ok() {
                 println!(
                     "Opened local documentation in browser, online documentation is avalible here: https://treymouledoux.github.io/Grid9/"
                 );

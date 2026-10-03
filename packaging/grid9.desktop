@@ -1,0 +1,8 @@
+[Desktop Entry]
+Categories={{categories}}
+Comment={{comment}}
+Exec={{exec}} documentation
+Icon={{icon}}
+Name=Grid9 Documentation
+Terminal=false
+Type=Application

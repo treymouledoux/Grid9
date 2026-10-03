@@ -2,6 +2,63 @@
 name = "grid9"
 version = "2026.1.0"
 edition = "2024"
+description = "An interpreted language based on a 3x3 grid of binary cells"
+authors = ["Trey Mouledoux"]
+homepage = "https://treymouledoux.github.io/Grid9/"
+license = "GPL-3.0-only"
+
+[package.metadata.packager]
+product-name = "Grid9"
+identifier = "com.treymouledoux.grid9"
+publisher = "Trey Mouledoux"
+category = "DeveloperTool"
+out-dir = "target/packages"
+before-packaging-command = "cargo build --release --locked"
+license-file = "LICENSE"
+icons = ["src/innosetup/icon.ico"]
+
+[package.metadata.packager.nsis]
+installMode = "currentUser"
+installer-icon = "src/innosetup/icon.ico"
+preinstall-section = '''
+Section "Grid9 user data"
+  InitPluginsDir
+  SetOutPath "$PLUGINSDIR"
+  File /oname=Grid9Setup.exe "${MAINBINARYSRCPATH}"
+  nsExec::ExecToStack '"$PLUGINSDIR\Grid9Setup.exe" setup'
+  Pop $0
+  Pop $1
+  StrCmp $0 "0" setup_ok
+    MessageBox MB_ICONSTOP "Could not initialize Grid9 components: $1"
+    Abort
+  setup_ok:
+  SetOutPath "$INSTDIR"
+  File /oname=grid9-path.ps1 "${MAINBINARYSRCPATH}.path.ps1"
+  nsExec::ExecToStack 'powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$INSTDIR\grid9-path.ps1" -Action Add -BinDir "$INSTDIR"'
+  Pop $0
+  Pop $1
+  StrCmp $0 "0" path_ok
+    MessageBox MB_ICONSTOP "Could not add Grid9 to PATH: $1"
+    Abort
+  path_ok:
+SectionEnd
+
+Section "un.Grid9 PATH"
+  nsExec::ExecToStack 'powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$INSTDIR\grid9-path.ps1" -Action Remove -BinDir "$INSTDIR"'
+  Pop $0
+  Pop $1
+  StrCmp $0 "0" remove_path_ok
+    MessageBox MB_ICONSTOP "Could not remove Grid9 from PATH: $1"
+    Abort
+  remove_path_ok:
+  Delete "$INSTDIR\grid9-path.ps1"
+SectionEnd
+'''
+
+[package.metadata.packager.deb]
+section = "devel"
+depends = ["libc6", "xdg-utils"]
+desktop-template = "packaging/grid9.desktop"
 
 [dependencies]
 scorched = "0.6.*" # Maintained by Trey Mouledoux

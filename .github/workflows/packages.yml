@@ -1,0 +1,60 @@
+name: Build installers
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "build.rs"
+      - "src/**"
+      - "packaging/**"
+      - ".github/workflows/packages.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            formats: nsis
+            artifact: windows-x64
+          - os: ubuntu-24.04
+            formats: deb
+            artifact: linux-x64
+          - os: macos-15
+            formats: app,dmg
+            artifact: macos-arm64
+          - os: macos-15-intel
+            formats: app,dmg
+            artifact: macos-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Test
+        run: cargo test --locked
+      - name: Install cargo-packager
+        run: cargo install cargo-packager --version 0.11.8 --locked
+      - name: Package
+        run: cargo packager --release --formats ${{ matrix.formats }}
+      - name: Build macOS CLI installer
+        if: runner.os == 'macOS'
+        run: python3 packaging/build_macos_pkg.py
+      - name: Check packaged binary and user data layout
+        run: python packaging/check_installation.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: grid9-${{ matrix.artifact }}
+          path: |
+            target/packages/*.exe
+            target/packages/*.deb
+            target/packages/*.dmg
+            target/packages/*.pkg
+          if-no-files-found: error
