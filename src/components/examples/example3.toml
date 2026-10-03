@@ -1,13 +1,13 @@
 [metadata]
 author = "treymouledoux"
 description = "Prints a once then uses back loops to print more characters"
-version = "1.0.1"
-showmetadata = true
-minGrid9Ver = "2022.023"
+version = "1.0.2"
+show_metadata = true
+min_grid9_ver = "2026.1.0"
 
 [config]
-advancedParse = true
-dontCache = false
-echoGridMod = false
-noLog = false
+advanced_preprocess = true
+dont_cache = false
+echo_grid_mod = false
+no_log = false
 verbosity = 1

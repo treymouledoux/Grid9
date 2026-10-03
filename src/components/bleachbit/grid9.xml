@@ -28,9 +28,9 @@
     <description>Clean uneeded logs that are left behind from scripts.</description>
     <action command="delete" search="walk.all" path="$$base$$/logs"/>
   </option>
-  <option id="parser_cache">
-    <label>ParserCache</label>
-    <description>Clean uneeded parsed code which is used to speed up scripts, they are regenerated as needed.</description>
-    <action command="delete" search="walk.all" path="$$base$$/parser_cache"/>
+  <option id="preprocessor_cache">
+    <label>PreprocessorCache</label>
+    <description>Clean uneeded preprocessed code which is used to speed up scripts, they are regenerated as needed.</description>
+    <action command="delete" search="walk.all" path="$$base$$/preprocessor_cache"/>
   </option>
 </cleaner>

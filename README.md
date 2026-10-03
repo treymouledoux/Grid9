@@ -1,12 +1,17 @@
 <img src=".github/assets/banner.png">
 
-Grid9 is an esoteric interpreted language made in Nim based on a 3x3 grid of zeros and ones.
-
-> [!IMPORTANT]
-> This project is activly being re-written in Rust [here](https://github.com/treymouledoux/Grid9/tree/rust).
-
+Grid9 is an esoteric interpreted language based on a 3x3 grid of zeros and ones.
 
 [![Nightly Release](https://github.com/treymouledoux/Grid9/actions/workflows/nightly.yml/badge.svg)](https://github.com/treymouledoux/Grid9/actions/workflows/nightly.yml)
+
+> [!NOTE]
+> The Rust rewrite introduces new language features and reworked tooling that may need migration. For a
+> full breakdown of what changed see [feature_changes.md](docs/feature_changes.md).
+> For specifically information regarding migration see the [migration guide](docs/migration.md).
+
+> [!CAUTION]
+> The rust rewrite has recently been merged. Check all new documentation to see breaking changes, new features, and migration info.
+
 
 ## Installation
 
@@ -16,25 +21,7 @@ Download the latest release for your platform from the releases page.
 
 ### Self Build
 
-#### Windows
-
-Make sure [git](https://github.com/git/git) is installed then run this command.
-
-```powershell
-powershell.exe $code = Invoke-RestMethod "https://raw.githubusercontent.com/treymouledoux/Grid9/main/scripts/build_and_install_windows.ps1"; foreach($a in $code) {iex $a;}
-```
-
-#### Linux
-
-Make sure [curl](https://github.com/curl/curl) is installed then run this command. It will automatically install [git](https://github.com/git/git) for you.
-
-```bash
-curl -s https://raw.githubusercontent.com/treymouledoux/Grid9/main/scripts/build_and_install_linux.sh | bash
-```
-
-### Online
-
-You can [run this project in gitpod](https://gitpod.io/#https://github.com/treymouledoux/Grid9) if you don't want to run it locally.
+#### Steps for building this project yourself have not been made yet
 
 ## Documentation
 
