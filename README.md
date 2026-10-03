@@ -10,7 +10,7 @@ Grid9 is an esoteric interpreted language based on a 3x3 grid of zeros and ones.
 > For specifically information regarding migration see the [migration guide](docs/migration.md).
 
 > [!CAUTION]
-> The `rust` branch is under heavy construction. Anything documented here may change, and the language may not yet behave as described. Expect bugs.
+> The rust rewrite has recently been merged. Check all new documentation to see breaking changes, new features, and migration info.
 
 
 ## Installation
