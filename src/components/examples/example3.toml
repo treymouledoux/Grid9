@@ -1,7 +1,7 @@
 [metadata]
 author = "treymouledoux"
 description = "Prints a once then uses back loops to print more characters"
-version = "1.0.1"
+version = "1.0.2"
 show_metadata = true
 min_grid9_ver = "2026.1.0"
 
