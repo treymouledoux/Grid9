@@ -1,10 +1,10 @@
-# Migrating your Grid9 config
+# Migrating legacy Grid9 configuration
 
-The Rust rewrite of Grid9 renames every multi-word config key to `snake_case`. The `[metadata]` and `[config]` tables keep their names — only the keys inside them change. Rename them in place; `author`, `description`, `version`, and `verbosity` are unchanged.
+Current Grid9 uses `snake_case` configuration keys. When migrating from the legacy Nim implementation, rename multi-word keys as shown below. The `[metadata]` and `[config]` tables keep their names — only the keys inside them change. Rename them in place; `author`, `description`, `version`, and `verbosity` are unchanged.
 
 ## Key mapping
 
-| Table Key | Old Grid9 (Nim) | New Grid9 (Rust) |
+| Table Key | Legacy Grid9 (Nim) | Current Grid9 (Rust) |
 | --- | --- | --- |
 | metadata | `showmetadata` | `show_metadata` |
 | metadata | `minGrid9Ver` | `min_grid9_ver` |
@@ -14,9 +14,9 @@ The Rust rewrite of Grid9 renames every multi-word config key to `snake_case`. T
 | config | `noLog` | `no_log` |
 | experiments | `exampleExperiment` | *(removed)* |
 
-## Target layout
+## Current layout
 
-A fully migrated config in the new format (values shown are the current defaults):
+A configuration in the current format (values shown are the current defaults):
 
 ```toml
 [metadata]
@@ -34,7 +34,12 @@ no_log         = false
 verbosity      = 1
 ```
 
-### Several config behaviors changed in ways that can bite you:
- - **Malformed values now hard-fail.** The Nim loader silently fell back to all defaults on bad TOML; the Rust loader returns a error, so make sure your toml keys have the right types.
- - **Old/unknown keys are ignored silently.** For example any leftover camelCase key (`advancedParse`, `noLog`, …) is skipped without warning and silently applies defaults.
- - **The `[experiments]` table is gone.** `exampleExperiment` and the whole table are no longer read, remove them because of complete removal of functionality.
+## Loading behavior
+
+- Malformed TOML and values of the wrong type stop script loading instead of reverting the entire configuration to defaults.
+- Omitted keys use the defaults shown above. Unknown keys are ignored without warnings. Leaving `advancedParse` or `noLog` in place therefore uses the corresponding current defaults.
+- Remove `[experiments]`; its values are ignored.
+- Place the TOML file alongside its script with the same base name: `script.toml` configures `script.g9`.
+- `no_log` suppresses interpreter logging. CLI and preprocessing messages currently do not consistently honor this option.
+
+See [feature changes](feature_changes.md) for current language syntax and preprocessing behavior.

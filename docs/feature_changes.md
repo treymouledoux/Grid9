@@ -1,21 +1,18 @@
-# Grid9 Feature Changes Nim -> Rust Rewrite
+# Current Grid9 behavior and legacy changes
 
-This document tracks language and tooling changes introduced by the Rust rewrite (the `rust` branch) compared to the original Nim implementation.
+Grid9's current implementation is written in Rust and lives on `main`. This document describes its behavior and the changes from the legacy Nim implementation.
 
-> [!NOTE]
-> Migrating an existing config? The full key-by-key mapping lives in the [migration guide](migration.md).
+## Compound conditions
 
-## Conditional operators (new)
-
-Conditions on `if` (`i`) and `while` (`w`) statements can now be combined with logical operators instead of being limited to a single comparison.
+Conditions on `if` (`i`) and `while` (`w`) support logical operators. Write `i` or `w` once, then join comparisons of the form `<cell><operator><bit>`.
 
 | Operator | Meaning | Example |
 | --- | --- | --- |
-| `\|` | Logical **OR** — passes if either condition is true | `i1=1\|i2=1` |
-| `&` | Logical **AND** — passes only if both conditions are true | `i1=1&i2=0` |
+| `\|` | OR: either comparison is true | `i1=1\|2=1` |
+| `&` | AND: both comparisons are true | `i1=1&2=0` |
 
-```
-i1=1|i2=1
+```text
+i1=1|2=1
   f8
 }
 w0=0&1!1
@@ -23,37 +20,44 @@ w0=0&1!1
 ]
 ```
 
-Both operators combine the existing `i<pos><op><bit>` / `w<pos><op><bit>` condition form, where `<op>` is `=` (equals) or `!` (not equals).
+Cells range from 0 to 8, operators are `=` and `!`, and comparison values are literal `0` or `1`. AND binds more tightly than OR. Loops test their conditions before each iteration. `e` exits the innermost enclosing while loop, including when used inside an if block.
 
-## Configuration (changed)
+## Configuration
 
-Every multi-word key is now `snake_case` (previously camelCase), and loading is far stricter and can cause warnings/errors for invalid keys for more guided development.
+Configuration uses `snake_case` keys in `[metadata]` and `[config]`. Missing keys use defaults; malformed TOML or values of the wrong type stop script loading. Unknown keys and tables are ignored without warnings, so legacy key names must be migrated manually. The `[experiments]` table has no effect.
 
-### Several config behaviors changed in ways that can bite you:
- - **Malformed values now hard-fail.** The Nim loader silently fell back to all defaults on bad TOML; the Rust loader returns a error, so make sure your toml keys have the right types.
- - **Old/unknown keys are ignored silently.** For example any leftover camelCase key (`advancedParse`, `noLog`, …) is skipped without warning and silently applies defaults.
- - **The `[experiments]` table is gone.** `exampleExperiment` and the whole table are no longer read, remove them because of complete removal of functionality.
+See the [migration guide](migration.md) for key mappings and defaults.
 
-For a complete before/after mapping and a ready-to-copy migrated config, see the [migration guide](migration.md).
+## Preprocessing and caching
 
-## Preprocessor (new?)
+- Source contents are hashed with SHA-256. Cache filenames include `_ap` when `advanced_preprocess` is enabled.
+- An unreadable cache entry triggers a warning and preprocessing without caching. Readable cached code is returned without preprocessing validation; content corruption is not automatically detected. To remove cached entries, use `grid9 clean preprocessor_cache` or `grid9 cl preprocessor_cache`.
+- `advanced_preprocess` removes simple empty if/while blocks and `b0`. It changes the character positions used by Back, so calculate offsets against the preprocessed code.
+- Commands and arguments are validated during preprocessing. Unexpected characters produce warnings; invalid command arguments and mismatched closing brackets stop preprocessing.
+- Unclosed blocks prompt to append their missing closing brackets. This check also runs with advanced preprocessing disabled.
 
-The ~~parser~~ preprocessor was rebuilt from scratch and does substantially more work and validation than the Nim version.
+Uppercase ASCII letters, spaces, tabs, line breaks, parentheses, periods, and commas are removed. Comments are uppercase text, not whole ignored lines: digits and lowercase letters remain executable. Use words such as `FOUR` rather than `4` and avoid lowercase command examples inside comments.
 
-- **Content-hashed cache.** Scripts are now hashed with SHA-256 instead of md5; hashes may get an `_ap` suffix when advanced preprocessing is on, so cached versions of the same script but different output due to different optimizations never collide.
-- **Cache safety + recovery.** A corrupt / non functional cache entry logs a warning and forces a repreprocess, with a hint to clean the cache directory via `grid9 c preprocessor_cache` as a possible fix.
-- **Dead-statement elimination.** With `advanced_preprocessor` on, empty `if` and `while` blocks are removed automatically, also `b0` 
-- **Per-command validation.** Each command is walked and checked. For example, the queue command `q` must be followed by `s` or `c`, otherwise it errors with `Invalid operation for queue command`, previously only specific control flow commands were checked.
-- **Bracket-depth checking.** `if` and `while` nesting depth is tracked; a negative depth is reported as an error, and the preprocessor checks for likely fixs such as a trailing `}` or `]`.
+## Interpreter behavior
 
-## CLI & tooling (updated)
+- `s<cell>r` assigns a random bit; `ar` assigns a random bit to each cell independently.
+- `p` prints the queued text when nonempty and clears it; otherwise it prints the current glyph. Each print adds a newline.
+- Saved grids start at zero. Load restores all nine cells. Mask combines the current and saved grids with bitwise OR. XOR uses the selected saved grid; `gxc` XORs the current grid with itself, clearing it.
+- `gg` reads exactly nine binary digits from one input line.
+- Back counts characters in preprocessed code. At a `b` located at index `k`, `bN` resumes at `k - N + 1`, matching the legacy interpreter's final increment. A subtraction before index zero is rejected. `b0` has no effect.
+- `dN` waits N whole seconds; `d0` has no effect.
 
-- **Automatic `.g9` extension.** The CLI now appends `.g9` for you when running a script.
-- **Conversion command.** A CLI conversion command handles encoding/decoding between text and Grid9.
-- **Structured logging.** Logging for cli and scripts runs through my own personally developed logging library: [scorched](https://github.com/treymouledoux/scorched)
+## CLI and tooling
 
-## Removed / breaking changes ⚠️
+The interpreter command appends `.g9` when omitted. Convert handles one glyph at a time:
 
-- Config keys moved from camelCase to `snake_case` (manual migration required).
-- The `[experiments]` config table was removed.
-- Legacy example scripts are fully deprecated and no longer released.
+```sh
+grid9 interpret script
+grid9 convert encode a
+grid9 convert decode 000000010
+grid9 clean preprocessor_cache
+```
+
+`c` aliases `convert`; `cl` aliases `clean`. Logging uses [scorched](https://github.com/treymouledoux/scorched). `no_log` suppresses interpreter logging, but preprocessing and CLI logging currently do not consistently honor it. `verbosity` controls selected informational messages, not every diagnostic.
+
+The current example directory contains `.g9` scripts and companion TOML files; the legacy examples subdirectory is absent.

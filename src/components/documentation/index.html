@@ -104,8 +104,7 @@
         <section class="block">
             <h2 class="block-title">Basic Description</h2>
             <p>
-                In one sentence: Grid9 is an esoteric interpreted language made in Nim (and now
-                rewritten in Rust) based on a 3&times;3 grid of cells &mdash; nine cells total &mdash;
+                Grid9 is an esoteric interpreted language implemented in Rust based on a 3&times;3 grid of cells &mdash; nine cells total &mdash;
                 where each cell holds a zero or a one.
             </p>
             <p>
@@ -117,8 +116,10 @@
                 can sway your logic.
             </p>
             <p>
-                The language doesn't stop at changing a few numbers; there are statements, control-flow
-                operators, and more.
+                Scripts begin with all nine cells set to zero. Uppercase ASCII letters, whitespace,
+                parentheses, periods, and commas are removed before execution. Write comments using
+                uppercase words: digits and lowercase letters remain part of the program. For example,
+                use <code>FOUR</code> rather than <code>4</code> in a comment.
             </p>
 
             <div class="legend" aria-hidden="true">
@@ -140,7 +141,8 @@
             <p>The set command sets a cell to a value.</p>
             <p>
                 The syntax is <code>s</code> followed by the cell id and then the value you want to set it to.
-                Unlike flip, set writes a cell's value with certainty.
+                Cell ids range from 0 to 8. Values are <code>0</code>, <code>1</code>, or
+                <code>r</code> for a random bit.
             </p>
             <p>For example, to set cell 0 to 1 you would run the code below.</p>
             <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">s01</span></code></pre></div>
@@ -160,7 +162,8 @@
         <section class="block" id="set-all">
             <h3 class="cmd"><span class="cmd-name">Set-all</span><span class="cmd-syntax">a&lt;value&gt;</span></h3>
             <p>The set-all command sets every cell to a single value at once.</p>
-            <p>The syntax is <code>a</code> followed by the value you want every cell to take.</p>
+            <p>The syntax is <code>a</code> followed by <code>0</code> or <code>1</code>.
+                With <code>ar</code>, each cell receives a random bit independently.</p>
             <p>For example, to give all cells the value 1 you would run the code below.</p>
             <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">a1</span></code></pre></div>
         </section>
@@ -177,7 +180,9 @@
             <p>
                 Every output-able character has a combination on the grid called a &ldquo;glyph.&rdquo; Print
                 converts the current glyph into the single character it represents. If the queue contains
-                anything, print outputs the queue instead of the current glyph. The syntax is <code>p</code>.
+                anything, print outputs the queue instead of the current glyph and then clears it.
+                Each print adds a newline. A pattern with no defined glyph causes an interpreter error.
+                The syntax is <code>p</code>.
             </p>
             <p>
                 For example, the character &ldquo;a&rdquo; is represented by <code>000000010</code>. Flip
@@ -210,7 +215,9 @@
             <p>
                 The syntax is <code>i</code> followed by the cell id, then <code>=</code> (equal) or
                 <code>!</code> (not equal), then the value you're testing for. Close an if statement with
-                <code>}</code>.
+                <code>}</code>. Combine comparisons with <code>&amp;</code> (AND) or <code>|</code> (OR),
+                such as <code>i1=1|2=1</code> or <code>i1=1&amp;2=0</code>. Write the initial
+                <code>i</code> only once; AND binds more tightly than OR. Comparison values are literal bits.
             </p>
             <p>For example, to test cell 2 for zero and, if true, print the letter c, run the code below.</p>
             <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="log">i2=0</span> <span class="cm">f6</span> <span class="io">p</span> <span class="log">}</span></code></pre></div>
@@ -223,13 +230,16 @@
                 The syntax mirrors if: <code>w</code> followed by the cell id, then <code>=</code> or
                 <code>!</code>, then the value you're testing for. Close a while statement with <code>]</code>.
             </p>
-            <p>For example, to loop while cell 2 is zero, printing the letter c infinitely, run the code below.</p>
+            <p>The condition is checked before each iteration. Compound comparisons use the same syntax as if,
+                such as <code>w0=0&amp;1!1</code>. For example, this loop alternates between c and a space
+                while cell 2 remains zero.</p>
             <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="log">w2=0</span> <span class="cm">f6</span> <span class="io">p</span> <span class="log">]</span></code></pre></div>
         </section>
 
         <section class="block" id="exit">
             <h3 class="cmd"><span class="cmd-name">Exit</span><span class="cmd-syntax">e</span></h3>
-            <p>The exit command breaks out of the current while loop.</p>
+            <p>The exit command breaks out of the innermost enclosing while loop, even from inside an if block.
+                It must be used inside a while loop.</p>
             <p>The syntax is simply <code>e</code>.</p>
             <p>For example, to loop while cell 5 is zero, print the letter c, then break out of the loop, run the code below.</p>
             <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="log">w5=0</span> <span class="cm">f6</span> <span class="io">p</span> <span class="log">e</span> <span class="log">]</span></code></pre></div>
@@ -244,7 +254,8 @@
         <section class="block" id="give">
             <h3 class="cmd"><span class="cmd-name">Give</span><span class="cmd-syntax">gg</span></h3>
             <p>The give command lets users supply a glyph pattern as input to the script.</p>
-            <p>The syntax is <code>gg</code>.</p>
+            <p>The syntax is <code>gg</code>. Enter exactly nine binary digits on one line,
+                such as <code>000000010</code>.</p>
             <p>
                 For example, a simple glyph-to-character converter takes input and prints the character as
                 output. The code for that is shown below.
@@ -255,13 +266,15 @@
         <section class="block" id="save-load">
             <h3 class="cmd"><span class="cmd-name">Save and Load</span><span class="cmd-syntax">gs&lt;id&gt;&nbsp;/&nbsp;gl&lt;id&gt;</span></h3>
             <p>Save and load commands store and recall glyph patterns to other grids for use later.</p>
-            <p>The syntax is <code>gs</code> plus an id from 0&ndash;8 to save, and <code>gl</code> plus an id from 0&ndash;8 to load.</p>
+            <p>The syntax is <code>gs</code> plus an id from 0&ndash;8 to save, and <code>gl</code> plus an id from 0&ndash;8 to load.
+                All nine saved grids start at zero; load restores all nine cells.</p>
             <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">ar</span> <span class="cm">s00</span> <span class="io">p</span> <span class="cm">gs0</span> <span class="cm">ar</span> <span class="cm">s00</span> <span class="io">p</span> <span class="cm">gl0</span> <span class="io">p</span></code></pre></div>
         </section>
 
         <section class="block" id="mask">
             <h3 class="cmd"><span class="cmd-name">Mask</span><span class="cmd-syntax">gm&lt;id&gt;</span></h3>
-            <p>The mask command masks a saved grid on top of the current grid.</p>
+            <p>The mask command combines a saved grid with the current grid using bitwise OR:
+                a saved one sets the corresponding cell to one, and a saved zero leaves it unchanged.</p>
             <p>The syntax is <code>gm</code> plus an id from 0&ndash;8 to mask.</p>
             <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">ar</span> <span class="cm">gs0</span> <span class="cm">ar</span> <span class="cm">gm0</span></code></pre></div>
         </section>
@@ -269,7 +282,8 @@
         <section class="block" id="xor">
             <h3 class="cmd"><span class="cmd-name">Xor</span><span class="cmd-syntax">gx&lt;id&gt;/c</span></h3>
             <p>The xor command xors the current grid, or a saved grid, against it.</p>
-            <p>The syntax is <code>gx</code> plus an id from 0&ndash;8, or <code>c</code> to xor against the current grid.</p>
+            <p>The syntax is <code>gx</code> plus an id from 0&ndash;8, or <code>c</code> to XOR against the current grid.
+                A cell becomes one when the two corresponding bits differ. <code>gxc</code> clears the current grid.</p>
             <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">f6</span> <span class="cm">f2</span> <span class="cm">f0</span> <span class="cm">f7</span> <span class="cm">gxc</span></code></pre></div>
         </section>
 
@@ -281,16 +295,19 @@
 
         <section class="block" id="back">
             <h3 class="cmd"><span class="cmd-name">Back</span><span class="cmd-syntax">b&lt;n&gt;</span></h3>
-            <p>The back command jumps back to previous instructions in the code.</p>
-            <p>The syntax is <code>b</code> followed by the number of instructions to go back. This value can be any number greater than 0.</p>
-            <p>For example, to go back 23 instructions you would run the code below.</p>
+            <p>The back command jumps by character positions in the preprocessed code.</p>
+            <p>The syntax is <code>b</code> followed by a nonnegative integer. At character index <code>k</code>,
+                <code>bN</code> resumes at <code>k - N + 1</code>, including the final character advance.
+                Subtracting past index zero causes an error; <code>b0</code> has no effect.
+                Count after comments and whitespace are removed and preprocessing optimizations are applied.</p>
+            <p>For example, <code>b23</code> subtracts 23 from the character index before the final advance.</p>
             <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="msk">b23</span></code></pre></div>
         </section>
 
         <section class="block" id="delay">
             <h3 class="cmd"><span class="cmd-name">Delay</span><span class="cmd-syntax">d&lt;seconds&gt;</span></h3>
             <p>The delay command waits between instructions in your code.</p>
-            <p>The syntax is <code>d</code> followed by the number of seconds to wait before continuing. This value can be any number greater than 0.</p>
+            <p>The syntax is <code>d</code> followed by the number of seconds to wait before continuing. This value can be any nonnegative integer; <code>d0</code> has no effect.</p>
             <p>For example, to flip a value, wait 14 whole seconds, then print it, run the code below.</p>
             <div class="code"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>grid9</div><pre><code><span class="cm">f6</span> <span class="msk">d14</span> <span class="io">p</span></code></pre></div>
         </section>
@@ -316,13 +333,14 @@
         <section class="block" id="toml">
             <h3 class="cmd"><span class="cmd-name">Toml</span><span class="cmd-syntax">config.toml</span></h3>
             <p>
-                Grid9 can be configured with a TOML file that changes how your code runs. The Rust rewrite
-                (v2026.1.0 and above) uses <code>snake_case</code> keys split across a
+                Grid9 can be configured with a TOML file alongside its script, using the same base name:
+                <code>script.toml</code> configures <code>script.g9</code>. Current Grid9 uses <code>snake_case</code> keys split across a
                 <code>[metadata]</code> table and a <code>[config]</code> table.
             </p>
             <p>
                 The structure is shown below. Any value you leave out falls back to its default; the rest
-                take the values you define.
+                take the values you define. Malformed TOML or incorrect value types stop script loading.
+                Unknown keys are ignored without warnings.
             </p>
             <div class="code code--toml"><div class="code-bar"><span class="code-mark" aria-hidden="true"></span>config.toml</div><pre><code><span class="io">[</span><span class="log">metadata</span><span class="io">]</span>
 <span class="cm">author</span>        <span class="io">=</span> <span class="msk">"unknown"</span>
@@ -339,9 +357,13 @@
 <span class="cm">verbosity</span>      <span class="io">=</span> <span class="log">1</span></code></pre></div>
             <p>
                 These options change how Grid9 interacts with your code. For instance,
-                <code>advanced_preprocess</code> makes the program start slower but can fix issues in your code,
+                <code>advanced_preprocess</code> removes simple empty control-flow blocks and <code>b0</code>,
                 and <code>echo_grid_mod</code> prints the grid after every instruction that modifies a cell,
-                which is handy for seeing more technical detail while debugging.
+                which is useful while debugging. <code>dont_cache</code> disables reading and writing
+                preprocessed cache entries. <code>no_log</code> suppresses interpreter logging;
+                CLI and preprocessing messages currently do not consistently honor it.
+                <code>verbosity</code> controls selected informational messages: zero hides them,
+                one enables cache messages, and two also enables preprocessing and interpreter start messages.
             </p>
         </section>
 

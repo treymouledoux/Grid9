@@ -1,40 +1,43 @@
 <img src=".github/assets/banner.png">
 
-Grid9 is an esoteric interpreted language based on a 3x3 grid of zeros and ones.
+Grid9 is an esoteric interpreted language implemented in Rust, based on a 3x3 grid of zeros and ones.
 
-[![Nightly Release](https://github.com/treymouledoux/Grid9/actions/workflows/nightly.yml/badge.svg)](https://github.com/treymouledoux/Grid9/actions/workflows/nightly.yml)
-
-> [!NOTE]
-> The Rust rewrite introduces new language features and reworked tooling that may need migration. For a
-> full breakdown of what changed see [feature_changes.md](docs/feature_changes.md).
-> For specifically information regarding migration see the [migration guide](docs/migration.md).
-
-> [!CAUTION]
-> The rust rewrite has recently been merged. Check all new documentation to see breaking changes, new features, and migration info.
-
+The current implementation is on `main`. For changes from the legacy Nim implementation, see the [feature changes](docs/feature_changes.md) and [migration guide](docs/migration.md).
 
 ## Installation
 
 ### Binaries
 
-Download the latest release for your platform from the releases page.
+See the [releases page](https://github.com/treymouledoux/Grid9/releases) for available binaries. Check the release version: older releases use the legacy Nim implementation.
 
-### Self Build
+### Build from source
 
-#### Steps for building this project yourself have not been made yet
+Install Rust and Cargo, then run these commands from the repository root:
+
+```sh
+cargo build --release
+cargo run --release -- version
+cargo run --release -- interpret src/components/examples/example1.g9
+```
+
+The executable is `target/release/grid9` (`grid9.exe` on Windows). Scripts accept an optional TOML file with the same base name, such as `example1.toml` alongside `example1.g9`.
+
+For development checks, run `cargo test` and `cargo clippy --all-targets -- -D warnings`.
 
 ## Documentation
 
-The docs are accessible by running "grid9 d" or "grid9 documentation" in the terminal or by going to the online documentation [here](https://treymouledoux.github.io/Grid9/).
+Read the [online language documentation](https://treymouledoux.github.io/Grid9/) or open `src/components/documentation/index.html` directly from this checkout. An installation with the documentation component can open it with `grid9 d` or `grid9 documentation`.
+
+The `--example` option and local documentation command expect component files at their configured locations; building the executable alone does not install them. For debug builds, those paths are relative to the working directory and expect execution from `target/debug`.
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please [open an issue](https://github.com/treymouledoux/Grid9/issues/new) first to discuss what you would like to change.
+Pull requests are welcome. For major changes, please [open an issue](https://github.com/treymouledoux/Grid9/issues/new) first to discuss what you would like to change. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[gpl-3.0](https://choosealicense.com/licenses/lgpl-3.0/)
+[GPL-3.0](LICENSE).
 
 ## Credits
 
-This project was inspired by the [BrainFuck](https://esolangs.org/wiki/Brainfuck) project on esolangs.org.
+This project was inspired by [Brainfuck](https://esolangs.org/wiki/Brainfuck).
