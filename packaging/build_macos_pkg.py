@@ -3,6 +3,7 @@
 from pathlib import Path
 import json
 import platform
+import plistlib
 import shutil
 import subprocess
 import tempfile
@@ -28,12 +29,24 @@ def build():
         shutil.copytree(app, destination, symlinks=True)
         cli = payload / "usr/local/bin/grid9"
         cli.parent.mkdir(parents=True)
-        # Install an actual executable rather than a link that breaks if the app
-        # is relocated or deleted. Both copies contain the required components.
-        shutil.copy2(app / "Contents/MacOS/grid9", cli)
+        # Removing the app should also disable the terminal command.
+        cli.symlink_to("/Applications/Grid9.app/Contents/MacOS/grid9")
+        uninstaller = cli.parent / "grid9-uninstall"
+        shutil.copy2(project / "packaging/macos-uninstall.sh", uninstaller)
+        uninstaller.chmod(0o755)
+        components = Path(temporary) / "components.plist"
+        # Never redirect installation to a build, downloaded, or moved copy.
+        with components.open("wb") as file:
+            plistlib.dump([{
+                "RootRelativeBundlePath": "Applications/Grid9.app",
+                "BundleIsRelocatable": False,
+                "BundleIsVersionChecked": False,
+                "BundleOverwriteAction": "upgrade",
+            }], file)
         output = packages / f"Grid9_{version}_{platform.machine()}.pkg"
         subprocess.run([
             "pkgbuild", "--root", str(payload),
+            "--component-plist", str(components),
             "--identifier", "com.treymouledoux.grid9.installer",
             "--version", version, "--install-location", "/",
             "--ownership", "recommended", str(output),

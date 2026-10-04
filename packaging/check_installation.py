@@ -59,9 +59,22 @@ def check():
             package = next((project / "target/packages").glob("*.pkg"))
             extracted = root / "package"
             subprocess.run(["pkgutil", "--expand-full", str(package), str(extracted)], check=True)
-            binary = extracted / "Payload/usr/local/bin/grid9"
+            import xml.etree.ElementTree as ET
+            info = ET.parse(extracted / "PackageInfo").getroot()
+            assert info.get("install-location") == "/"
+            assert info.get("relocatable") == "false"
+            assert not info.findall("relocate/bundle"), "PKG must not relocate Grid9.app to another copy"
+            cli = extracted / "Payload/usr/local/bin/grid9"
+            assert cli.is_symlink()
+            assert os.readlink(cli) == "/Applications/Grid9.app/Contents/MacOS/grid9"
+            # The absolute link targets the real install location; run the
+            # bundled executable directly while inspecting an extracted PKG.
+            binary = extracted / "Payload/Applications/Grid9.app/Contents/MacOS/grid9"
             assert binary.is_file()
-            assert (extracted / "Payload/Applications/Grid9.app/Contents/MacOS/grid9").is_file()
+            uninstaller = extracted / "Payload/usr/local/bin/grid9-uninstall"
+            assert uninstaller.read_bytes() == (project / "packaging/macos-uninstall.sh").read_bytes()
+            assert os.access(uninstaller, os.X_OK)
+            subprocess.run(["/bin/sh", "-n", str(uninstaller)], check=True)
         else:
             package = next((project / "target/packages").glob("*.deb"))
             extracted = root / "package"

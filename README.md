@@ -19,6 +19,16 @@ open "$HOME/Downloads/Grid9_2026.1.0_arm64.pkg"
 
 Follow the installer prompts. See the [macOS installation notes](docs/packaging.md#installation-and-command-line-access) for installation paths.
 
+### Uninstalling on macOS
+
+For installations made with the current `.pkg` installer, run:
+
+```sh
+sudo /usr/local/bin/grid9-uninstall
+```
+
+This removes `Grid9.app`, the terminal command symlink, the uninstaller, the package receipt, and your entire `~/Library/Application Support/Grid9` folder, including documentation, examples, logs, parser cache, and any personal files stored there. Moving the app to Trash disables the terminal command but leaves the symlink, uninstaller, and user data behind; the uninstall command cleans these up even after the app is deleted. See the [uninstallation notes](docs/packaging.md#macos-uninstallation) for older installers and DMG installations.
+
 ### Build from source
 
 Install Rust and Cargo, then run these commands from the repository root:

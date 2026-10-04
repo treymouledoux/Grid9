@@ -29,7 +29,7 @@ The `Build installers` GitHub Actions workflow tests and packages Windows x64, L
 ## Installation and command-line access
 
 - Windows: run the installer and approve the automatic administrator prompt; you do not need to select **Run as administrator** manually. It installs `grid9.exe` under `%LOCALAPPDATA%\Grid9` by default and adds the selected installation directory to the user PATH for the account running the elevated installer. Use your own account's elevation when possible; supplying another administrator's credentials installs it for that account. Setup broadcasts the environment change; open a new terminal to use `grid9`. Uninstallation also requests elevation and removes only a PATH entry added by Grid9, preserving other entries and pre-existing configuration.
-- macOS: run the `.pkg` installer. It installs the executable in `/usr/local/bin/grid9`, which is on the default macOS PATH, and the app in `/Applications/Grid9.app`. Installation requests administrator permission for those system locations. Opening the app in Finder initializes user data and opens the documentation. The optional DMG only installs the app by dragging; it does not configure command-line access. The executable installed by the PKG works independently of the app bundle.
+- macOS: run the `.pkg` installer. It installs the app in `/Applications/Grid9.app` and a symlink at `/usr/local/bin/grid9`, which is on the default macOS PATH and points to the executable inside the app. Installation requests administrator permission for those system locations. Opening the app in Finder initializes user data and opens the documentation. The optional DMG only installs the app by dragging; it does not configure command-line access. Deleting or moving the app disables the terminal command; deleting it leaves a broken symlink.
 - Linux: install the `.deb` with `sudo apt install ./Grid9_*.deb` (using the actual downloaded filename). The executable is installed in `/usr/bin`; `grid9` is available on PATH. The desktop entry opens the documentation.
 
 The packages are unsigned by default. Public macOS distribution can use cargo-packager's signing and notarization configuration; Windows signing requires a signing certificate. No credentials are stored in this repository.
@@ -42,6 +42,20 @@ open "$HOME/Downloads/Grid9_2026.1.0_arm64.pkg"
 ```
 
 Follow the installer prompts to install the app and terminal command. A `No such xattr: com.apple.quarantine` message means the installer has no quarantine attribute to remove. This removes download quarantine; it does not sign or notarize the build.
+
+### macOS uninstallation
+
+The current PKG installs `/usr/local/bin/grid9-uninstall`. To purge the installed app, terminal integration, and your user data, run:
+
+```sh
+sudo /usr/local/bin/grid9-uninstall
+```
+
+This removes the app, terminal symlink, uninstaller, package receipt, and the invoking user's entire `~/Library/Application Support/Grid9` folder. This includes documentation, examples, logs, parser cache, and any personal files stored there. It also works after you have already deleted the app. The uninstaller resolves the original user behind `sudo` rather than using root's home directory. Other users' data and custom directories selected with `GRID9_DATA_DIR` are left untouched; remove those separately if needed. Reinstall the updated PKG to replace an older uninstaller that preserved user data or a separate terminal executable used by older installers.
+
+Dragging the app to Trash disables the terminal command but leaves its broken symlink, the uninstaller, the package receipt, and user data. Use the command above to purge these too. The uninstaller requests administrator access through `sudo` and removes itself when finished.
+
+Older PKGs did not include the uninstaller; reinstall the current PKG first if `/usr/local/bin/grid9-uninstall` is missing. A DMG-only installation has no terminal integration or uninstaller: move `/Applications/Grid9.app` to Trash to remove it, and delete `~/Library/Application Support/Grid9` separately to purge its user data.
 
 ## User data layout
 
