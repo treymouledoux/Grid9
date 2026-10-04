@@ -7,7 +7,18 @@ $ErrorActionPreference = 'Stop'
 $directory = [IO.Path]::GetFullPath($BinDir).TrimEnd('\')
 $registryKey = 'HKCU:\Software\Trey Mouledoux\Grid9'
 $ownershipValue = 'PathAddedByGrid9'
-$previous = Get-ItemPropertyValue -Path $registryKey -Name $ownershipValue -ErrorAction SilentlyContinue
+# Missing ownership is normal on first install and after uninstall. Read the
+# optional value directly: Get-ItemPropertyValue can throw a terminating
+# error for a missing property even with -ErrorAction SilentlyContinue.
+$previous = $null
+$ownershipKey = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey('Software\Trey Mouledoux\Grid9')
+if ($null -ne $ownershipKey) {
+    try {
+        $previous = $ownershipKey.GetValue($ownershipValue, $null)
+    } finally {
+        $ownershipKey.Dispose()
+    }
+}
 $original = [Environment]::GetEnvironmentVariable('Path', 'User')
 # Keep even a single PATH entry as an array: string += would concatenate
 # the installation directory without the required semicolon separator.

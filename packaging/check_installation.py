@@ -15,6 +15,10 @@ def check():
         data = root / "data"
         environment = dict(os.environ, GRID9_DATA_DIR=str(data))
         if sys.platform == "win32":
+            import winreg
+            # An existing Grid9 key without PATH ownership must also work.
+            with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\Trey Mouledoux\Grid9"):
+                pass
             installer = next((project / "target/packages").glob("*.exe"))
             install_dir = root / "program"
             subprocess.run(
@@ -116,6 +120,19 @@ def check():
                 user_path, _ = winreg.QueryValueEx(key, "Path")
             assert not any(p and path_directory(p) == install_dir.resolve() for p in user_path.split(';')), f"Uninstall left {install_dir} in user PATH: {user_path!r}"
             assert user_path == os.environ["SystemRoot"] + r"\System32", f"Uninstall changed the existing PATH: {user_path!r}"
+            # Uninstall leaves the key but removes PathAddedByGrid9. Reinstall
+            # must succeed in exactly the state shown by the reported failure.
+            subprocess.run([str(installer), "/S", f"/D={install_dir}"],
+                           env=environment, check=True, timeout=120)
+            assert binary.is_file(), "Reinstallation failed"
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
+                user_path, _ = winreg.QueryValueEx(key, "Path")
+            assert sum(bool(p) and path_directory(p) == install_dir.resolve() for p in user_path.split(';')) == 1, f"Reinstall PATH incorrect: {user_path!r}"
+            subprocess.run([str(install_dir / "uninstall.exe"), "/S", f"_?={install_dir}"],
+                           env=environment, check=True, timeout=120)
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
+                user_path, _ = winreg.QueryValueEx(key, "Path")
+            assert user_path == os.environ["SystemRoot"] + r"\System32", f"Second uninstall changed PATH: {user_path!r}"
 
 
 if __name__ == "__main__":
