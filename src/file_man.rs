@@ -36,7 +36,6 @@ pub static DOCS_DIR: LazyLock<PathBuf> = match cfg!(debug_assertions) {
 
 include!(concat!(env!("OUT_DIR"), "/components.rs"));
 
-
 pub fn initialize() -> std::io::Result<()> {
     initialize_at(&DATA_DIR)
 }

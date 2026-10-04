@@ -87,7 +87,10 @@ fn main() {
             };
 
             if empty_args {
-                logf!(Info, "If you are meaning to use grid9 in the cli, please run grid9 help for a full command list.")
+                logf!(
+                    Info,
+                    "If you are meaning to use grid9 in the cli, please run grid9 help for a full command list."
+                )
             }
         }
         Command::Interpret { example, input } => {
