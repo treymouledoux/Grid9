@@ -9,7 +9,9 @@ $registryKey = 'HKCU:\Software\Trey Mouledoux\Grid9'
 $ownershipValue = 'PathAddedByGrid9'
 $previous = Get-ItemPropertyValue -Path $registryKey -Name $ownershipValue -ErrorAction SilentlyContinue
 $original = [Environment]::GetEnvironmentVariable('Path', 'User')
-$entries = if ([string]::IsNullOrEmpty($original)) { @() } else { @($original -split ';') }
+# Keep even a single PATH entry as an array: string += would concatenate
+# the installation directory without the required semicolon separator.
+[string[]]$entries = if ([string]::IsNullOrEmpty($original)) { @() } else { @($original -split ';') }
 
 function MatchesDirectory([string]$Entry, [string]$Directory) {
     return [string]::Equals(

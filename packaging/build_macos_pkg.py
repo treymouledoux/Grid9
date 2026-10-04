@@ -9,6 +9,8 @@ import tempfile
 
 
 def build():
+    if platform.machine() != "arm64":
+        raise RuntimeError("Grid9 macOS installers support Apple Silicon (arm64) only")
     project = Path(__file__).resolve().parent.parent
     metadata = json.loads(subprocess.check_output([
         "cargo", "metadata", "--no-deps", "--offline", "--format-version", "1",

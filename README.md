@@ -10,6 +10,15 @@ The current implementation is on `main`. For changes from the legacy Nim impleme
 
 See the [releases page](https://github.com/treymouledoux/Grid9/releases) for available binaries. Check the release version: older releases use the legacy Nim implementation.
 
+On macOS (Apple Silicon), use the `.pkg` installer for terminal access. If macOS blocks the trusted downloaded installer, remove its quarantine attribute, then open it. Replace the path below with your downloaded `.pkg` filename:
+
+```sh
+xattr -d com.apple.quarantine "$HOME/Downloads/Grid9_2026.1.0_arm64.pkg"
+open "$HOME/Downloads/Grid9_2026.1.0_arm64.pkg"
+```
+
+Follow the installer prompts. See the [macOS installation notes](docs/packaging.md#installation-and-command-line-access) for installation paths.
+
 ### Build from source
 
 Install Rust and Cargo, then run these commands from the repository root:

@@ -22,12 +22,19 @@ def check():
                 env=environment, check=True, timeout=120,
             )
             binary = install_dir / "grid9.exe"
+            assert binary.is_file(), f"Installer did not create {binary}"
             import winreg
             with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
                 user_path, _ = winreg.QueryValueEx(key, "Path")
-            assert sum(p.lower() == str(install_dir).lower() for p in user_path.split(';')) == 1
-            environment["PATH"] = user_path + os.pathsep + environment["PATH"]
-            assert Path(shutil.which("grid9", path=environment["PATH"])).resolve() == binary.resolve()
+            assert os.environ["SystemRoot"] + r"\System32" in user_path.split(';'), "Installer changed the existing PATH entry"
+            def path_directory(entry):
+                return Path(os.path.expandvars(entry.strip().strip('"'))).resolve()
+
+            matches = [p for p in user_path.split(';') if p and path_directory(p) == install_dir.resolve()]
+            assert len(matches) == 1, f"Expected one PATH entry for {install_dir}; user PATH: {user_path!r}"
+            environment["PATH"] = os.path.expandvars(user_path) + os.pathsep + environment["PATH"]
+            resolved = shutil.which("grid9", path=environment["PATH"])
+            assert resolved and Path(resolved).resolve() == binary.resolve(), f"grid9 resolved to {resolved!r}; expected {binary}"
             # Verify install-time provisioning before running the installed app.
             assert (data / "documentation/index.html").is_file()
             for directory in ["logs", "preprocessor_cache"]:
@@ -79,8 +86,27 @@ def check():
             ], env=environment, check=True, timeout=120)
             with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
                 user_path, _ = winreg.QueryValueEx(key, "Path")
-            assert str(install_dir).lower() not in [p.lower() for p in user_path.split(';')]
+            assert not any(p and path_directory(p) == install_dir.resolve() for p in user_path.split(';')), f"Uninstall left {install_dir} in user PATH: {user_path!r}"
+            assert user_path == os.environ["SystemRoot"] + r"\System32", f"Uninstall changed the existing PATH: {user_path!r}"
 
 
 if __name__ == "__main__":
-    check()
+    if sys.platform == "win32":
+        import winreg
+        # Exercise the single-entry PATH regression, preserving the host's
+        # original value even if installation or verification fails.
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment", 0, winreg.KEY_READ | winreg.KEY_SET_VALUE) as key:
+            try:
+                original_path = winreg.QueryValueEx(key, "Path")
+            except FileNotFoundError:
+                original_path = None
+            try:
+                winreg.SetValueEx(key, "Path", 0, winreg.REG_EXPAND_SZ, os.environ["SystemRoot"] + r"\System32")
+                check()
+            finally:
+                if original_path is None:
+                    winreg.DeleteValue(key, "Path")
+                else:
+                    winreg.SetValueEx(key, "Path", 0, original_path[1], original_path[0])
+    else:
+        check()

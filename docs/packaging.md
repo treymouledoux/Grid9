@@ -17,14 +17,14 @@ If cargo-packager reports `Couldn't detect a valid configuration file`, first co
 | Platform | Command | Output |
 | --- | --- | --- |
 | Windows | `cargo packager --release --formats nsis` | NSIS `.exe` installer |
-| macOS | `cargo packager --release --formats app,dmg`, then `python3 packaging/build_macos_pkg.py` | `.pkg` CLI installer, `Grid9.app`, and optional `.dmg` |
+| macOS (Apple Silicon) | `cargo packager --release --formats app,dmg`, then `python3 packaging/build_macos_pkg.py` | `.pkg` CLI installer, `Grid9.app`, and optional `.dmg` |
 | Linux | `cargo packager --release --formats deb` | Debian/Ubuntu `.deb` package |
 
 The Linux package currently targets Debian-compatible distributions; it is not a universal Linux installer. Use the standalone release executable on other distributions. The Debian package requires `libc6` and `xdg-utils` (for opening documentation).
 
 CI builds Linux packages on Ubuntu 24.04. Those binaries require the build system's glibc baseline; rebuild on an older compatible distribution if you need to support older systems. This also applies to the standalone Linux executable.
 
-The `Build installers` GitHub Actions workflow tests and packages Windows x64, Linux x64, macOS Apple Silicon, and macOS Intel. It runs manually, on `v*` tags, and on pull requests touching packaging or application files. CI also checks Windows PATH registration/removal and the CLI executable extracted from the macOS PKG. Each job uploads its installer as an Actions artifact; it does not publish releases automatically.
+The `Build installers` GitHub Actions workflow tests and packages Windows x64, Linux x64, and macOS Apple Silicon. Intel Macs are not supported. It runs manually, on `v*` tags, and on pull requests touching packaging or application files. CI also checks Windows PATH registration/removal and the CLI executable extracted from the macOS PKG. Each job uploads its installer as an Actions artifact; it does not publish releases automatically.
 
 ## Installation and command-line access
 
@@ -33,6 +33,15 @@ The `Build installers` GitHub Actions workflow tests and packages Windows x64, L
 - Linux: install the `.deb` with `sudo apt install ./Grid9_*.deb` (using the actual downloaded filename). The executable is installed in `/usr/bin`; `grid9` is available on PATH. The desktop entry opens the documentation.
 
 The packages are unsigned by default. Public macOS distribution can use cargo-packager's signing and notarization configuration; Windows signing requires a signing certificate. No credentials are stored in this repository.
+
+If macOS blocks the trusted downloaded `.pkg` installer, remove its quarantine attribute, then open it. Replace the path below with your downloaded `.pkg` filename:
+
+```sh
+xattr -d com.apple.quarantine "$HOME/Downloads/Grid9_2026.1.0_arm64.pkg"
+open "$HOME/Downloads/Grid9_2026.1.0_arm64.pkg"
+```
+
+Follow the installer prompts to install the app and terminal command. A `No such xattr: com.apple.quarantine` message means the installer has no quarantine attribute to remove. This removes download quarantine; it does not sign or notarize the build.
 
 ## User data layout
 
