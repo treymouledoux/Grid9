@@ -29,7 +29,13 @@ fn main() {
     // NSIS installs this helper for PATH registration and unregistration. Stage
     // it next to the binary so the template finds it through MAINBINARYSRCPATH.
     println!("cargo:rerun-if-changed=packaging/windows-path.ps1");
+    println!("cargo:rerun-if-changed=packaging/icon.ico");
     if env::var("CARGO_CFG_TARGET_OS").unwrap() == "windows" {
+        // The installer icon does not set the installed executable's icon.
+        winresource::WindowsResource::new()
+            .set_icon("packaging/icon.ico")
+            .compile()
+            .expect("failed to embed the Grid9 Windows executable icon");
         let out_dir = env::var_os("OUT_DIR").unwrap();
         let profile_dir = Path::new(&out_dir).ancestors().nth(3).unwrap();
         fs::copy(

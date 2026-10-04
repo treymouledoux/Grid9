@@ -31,10 +31,6 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
-    /// Install bundled documentation and examples and create user data directories.
-    #[command(hide = true)]
-    Setup,
-
     #[command(alias = "a")]
     About,
 
@@ -71,10 +67,9 @@ fn main() {
     }
     set_logging_path(LOG_DIR.to_str().expect("Failed to get logging dir"));
 
-    // Desktop packages can be opened without arguments. Show the bundled docs
-    // instead of exiting with a CLI error when launched from Finder or Explorer.
+    let empty_args = cli.command.is_none();
+
     match cli.command.unwrap_or(Command::Documentation) {
-        Command::Setup => println!("Grid9 components installed in {}", DATA_DIR.display()),
         Command::About => println!(
             "Grid9 is a esoteric programming language based on a 3x3 grid of memory cells which you use to make 'glyphs' these 'glyphs' are used to output to the scripts terminal.\nThis language was developed by Trey Mouledoux in the Nim programming language but since has been reimplemented in Rust by Trey Mouledoux."
         ),
@@ -90,6 +85,10 @@ fn main() {
                     "Failed to open locally installed documentation, make sure this component is installed properly, online documentation is available at: https://treymouledoux.github.io/Grid9/"
                 );
             };
+
+            if empty_args {
+                logf!(Info, "If you are meaning to use grid9 in the cli, please run grid9 help for a full command list.")
+            }
         }
         Command::Interpret { example, input } => {
             let input = match input.ends_with(".g9") {

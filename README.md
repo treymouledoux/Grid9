@@ -37,9 +37,7 @@ For development checks, run `cargo test` and `cargo clippy --all-targets -- -D w
 
 Read the [online language documentation](https://treymouledoux.github.io/Grid9/) or open `src/components/documentation/index.html` directly from this checkout. An installation with the documentation component can open it with `grid9 d` or `grid9 documentation`.
 
-Documentation and examples are bundled into the executable. Grid9 creates its user data directories and installs these components automatically before execution; `grid9 setup` performs that setup explicitly. Debug builds read documentation and examples from the source checkout regardless of the working directory. Launching Grid9 without arguments opens the local documentation.
-
-See [packaging.md](docs/packaging.md) for Windows, macOS, and Linux installer builds and installation paths.
+See [packaging.md](docs/packaging.md) for Windows, macOS, and Linux installation paths.
 
 ## Contributing
 

@@ -15,17 +15,19 @@ category = "DeveloperTool"
 out-dir = "target/packages"
 before-packaging-command = "cargo build --release --locked"
 license-file = "LICENSE"
-icons = ["src/innosetup/icon.ico"]
+icons = ["packaging/icon.ico"]
 
 [package.metadata.packager.nsis]
 installMode = "currentUser"
-installer-icon = "src/innosetup/icon.ico"
+installer-icon = "packaging/icon.ico"
 preinstall-section = '''
+RequestExecutionLevel admin
+
 Section "Grid9 user data"
   InitPluginsDir
   SetOutPath "$PLUGINSDIR"
   File /oname=Grid9Setup.exe "${MAINBINARYSRCPATH}"
-  nsExec::ExecToStack '"$PLUGINSDIR\Grid9Setup.exe" setup'
+  nsExec::ExecToStack '"$PLUGINSDIR\Grid9Setup.exe" version'
   Pop $0
   Pop $1
   StrCmp $0 "0" setup_ok
@@ -69,3 +71,6 @@ serde = { version = "1.0.*", features = ["derive"] }
 toml = "1.1.*"
 sha2 = "0.11.*"
 regex = "1.13.*"
+
+[build-dependencies]
+winresource = "0.1.31"

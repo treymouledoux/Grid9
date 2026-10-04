@@ -36,8 +36,7 @@ pub static DOCS_DIR: LazyLock<PathBuf> = match cfg!(debug_assertions) {
 
 include!(concat!(env!("OUT_DIR"), "/components.rs"));
 
-/// Provision the same per-user layout for installers, portable binaries, and
-/// additional users of a machine-wide installation, before logging or caching.
+
 pub fn initialize() -> std::io::Result<()> {
     initialize_at(&DATA_DIR)
 }
@@ -48,8 +47,7 @@ fn initialize_at(data_dir: &Path) -> std::io::Result<()> {
     for dir in ["logs", "preprocessor_cache", "documentation", "examples"] {
         fs::create_dir_all(data_dir.join(dir))?;
     }
-    // The content fingerprint refreshes shipped components even when a build
-    // keeps the same package version. Logs, caches, and extra files are retained.
+
     let mut hash = Sha256::new();
     for &(name, bytes) in COMPONENTS {
         hash.update(name.as_bytes());

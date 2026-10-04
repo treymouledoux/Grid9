@@ -23,6 +23,21 @@ def check():
             )
             binary = install_dir / "grid9.exe"
             assert binary.is_file(), f"Installer did not create {binary}"
+            # Verify the app icon is embedded in the installed PE executable.
+            import ctypes
+            from ctypes import wintypes
+            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+            kernel32.LoadLibraryExW.argtypes = [wintypes.LPCWSTR, wintypes.HANDLE, wintypes.DWORD]
+            kernel32.LoadLibraryExW.restype = wintypes.HMODULE
+            kernel32.FindResourceW.argtypes = [wintypes.HMODULE, ctypes.c_void_p, ctypes.c_void_p]
+            kernel32.FindResourceW.restype = wintypes.HANDLE
+            kernel32.FreeLibrary.argtypes = [wintypes.HMODULE]
+            module = kernel32.LoadLibraryExW(str(binary), None, 2)  # LOAD_LIBRARY_AS_DATAFILE
+            assert module, f"Could not load executable resources: {ctypes.get_last_error()}"
+            try:
+                assert kernel32.FindResourceW(module, 1, 14), "Installed grid9.exe has no app icon (RT_GROUP_ICON)"
+            finally:
+                kernel32.FreeLibrary(module)
             import winreg
             with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
                 user_path, _ = winreg.QueryValueEx(key, "Path")
@@ -59,7 +74,7 @@ def check():
                 check=True, capture_output=True, text=True,
             ).stdout
 
-        print(run("setup").strip())
+        print(run("version").strip())
         for directory in ["logs", "preprocessor_cache"]:
             assert (data / directory).is_dir()
             assert not list((data / directory).iterdir()), directory
@@ -72,7 +87,7 @@ def check():
                 if source.is_file() and not any(p.startswith(".") for p in relative.parts):
                     assert (data / relative).read_bytes() == source.read_bytes(), relative
                     count += 1
-        # Also exercise automatic initialization without an explicit setup call.
+        # Also exercise initialization when the first command runs an example.
         environment["GRID9_DATA_DIR"] = str(root / "first-run")
         assert "Hello world" in run("interpret", "--example", "example1")
         assert (root / "first-run/documentation/index.html").is_file()

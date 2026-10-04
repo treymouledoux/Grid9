@@ -28,7 +28,7 @@ The `Build installers` GitHub Actions workflow tests and packages Windows x64, L
 
 ## Installation and command-line access
 
-- Windows: run the installer. It installs `grid9.exe` for the current user under `%LOCALAPPDATA%\Grid9` by default and adds the selected installation directory to the user PATH. Setup broadcasts the environment change; open a new terminal to use `grid9`. Uninstallation removes only a PATH entry added by Grid9, preserving other entries and pre-existing configuration.
+- Windows: run the installer and approve the automatic administrator prompt; you do not need to select **Run as administrator** manually. It installs `grid9.exe` under `%LOCALAPPDATA%\Grid9` by default and adds the selected installation directory to the user PATH for the account running the elevated installer. Use your own account's elevation when possible; supplying another administrator's credentials installs it for that account. Setup broadcasts the environment change; open a new terminal to use `grid9`. Uninstallation also requests elevation and removes only a PATH entry added by Grid9, preserving other entries and pre-existing configuration.
 - macOS: run the `.pkg` installer. It installs the executable in `/usr/local/bin/grid9`, which is on the default macOS PATH, and the app in `/Applications/Grid9.app`. Installation requests administrator permission for those system locations. Opening the app in Finder initializes user data and opens the documentation. The optional DMG only installs the app by dragging; it does not configure command-line access. The executable installed by the PKG works independently of the app bundle.
 - Linux: install the `.deb` with `sudo apt install ./Grid9_*.deb` (using the actual downloaded filename). The executable is installed in `/usr/bin`; `grid9` is available on PATH. The desktop entry opens the documentation.
 
@@ -64,16 +64,16 @@ Grid9/
   .components-revision   fingerprint of bundled component contents
 ```
 
-Windows setup runs `grid9 setup` before installing the executable. macOS and Linux initialize the layout on the first execution, before logging or preprocessing. Setup creates the cache and log directories without populating them. Normal execution subsequently creates log/cache entries as needed. Each additional user receives their own layout on first run, including when the binary is installed for the whole machine. Running a setup command as root initializes root's data directory, not another user's.
+The Windows installer runs `grid9 version` before installing the executable to initialize the user data layout. macOS and Linux initialize the layout on the first execution, before logging or preprocessing. Initialization creates the cache and log directories without populating them. Commands that log or preprocess scripts subsequently create entries as needed. Each additional user receives their own layout on first run, including when the binary is installed for the whole machine. Running Grid9 as root initializes root's data directory, not another user's. The `--help` and `--version` flags exit before initialization; the `version` subcommand initializes normally.
 
-`grid9 setup` is idempotent. Missing bundled files are restored. A changed component fingerprint refreshes the shipped docs and examples, including changes made without a version bump. Files with shipped names are replaced on such an update; keep personal scripts under distinct names. Extra files, existing logs, and cached scripts are retained.
+Initialization is idempotent. Missing bundled files are restored. A changed component fingerprint refreshes the shipped docs and examples, including changes made without a version bump. Files with shipped names are replaced on such an update; keep personal scripts under distinct names. Extra files, existing logs, and cached scripts are retained.
 
 Set `GRID9_DATA_DIR` to override the data directory, useful for portable installations and isolated packaging checks. Debug builds still read docs/examples from the source tree; release builds use the installed data directory.
 
 To check a build manually:
 
 ```sh
-grid9 setup
+grid9 version
 grid9 interpret --example example1
 grid9 documentation
 ```
