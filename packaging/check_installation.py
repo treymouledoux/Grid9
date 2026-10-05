@@ -176,7 +176,7 @@ def check_windows(root):
     installer = one_package("exe")
     manifest = ET.fromstring(windows_resource(installer, 24))
     levels = [element.attrib["level"] for element in manifest.iter() if element.tag.endswith("requestedExecutionLevel")]
-    assert levels == ["asInvoker"], f"Per-user setup must not request elevation: {levels}"
+    assert levels == ["requireAdministrator"], f"Setup must request elevation: {levels}"
     install_dir = root / "installed program ü"
     data = root / "installer data"
     environment = dict(os.environ, GRID9_DATA_DIR=str(data))
@@ -211,6 +211,9 @@ def check_windows(root):
             run(nsis_command(installer, install_dir), env=environment, timeout=120)
             installed = True
             assert binary.is_file()
+            uninstall_manifest = ET.fromstring(windows_resource(install_dir / "uninstall.exe", 24))
+            uninstall_levels = [element.attrib["level"] for element in uninstall_manifest.iter() if element.tag.endswith("requestedExecutionLevel")]
+            assert uninstall_levels == ["requireAdministrator"], f"Uninstaller must request elevation: {uninstall_levels}"
             assert windows_resource(binary, 14), "Missing executable icon"
             assert len(matching_entries()) == 1 and baseline in read_path().split(';')
             assert Path(shutil.which("grid9", path=read_path())).resolve() == binary.resolve()

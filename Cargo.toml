@@ -21,6 +21,9 @@ icons = ["packaging/icon.ico"]
 installMode = "currentUser"
 installer-icon = "packaging/icon.ico"
 preinstall-section = '''
+# Preserve elevation for compatibility with existing elevated installations.
+RequestExecutionLevel admin
+
 Section "Grid9 user data"
   InitPluginsDir
   SetOutPath "$PLUGINSDIR"
