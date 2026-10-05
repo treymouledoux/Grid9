@@ -169,7 +169,10 @@ fn main() {
                 }
 
                 let preprocessed_code = preprocess(&PathBuf::from(path), cfg.clone());
-                interpret(&preprocessed_code, cfg);
+                if let Err(error) = interpret(&preprocessed_code, cfg) {
+                    eprintln!("Interpreter error: {error}");
+                    std::process::exit(1);
+                }
             } else {
                 if example {
                     logf!(

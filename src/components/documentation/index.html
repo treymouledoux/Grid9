@@ -357,10 +357,12 @@
 <span class="cm">verbosity</span>      <span class="io">=</span> <span class="log">1</span></code></pre></div>
             <p>
                 These options change how Grid9 interacts with your code. For instance,
-                <code>advanced_preprocess</code> removes simple empty control-flow blocks and <code>b0</code>,
+                <code>advanced_preprocess</code> removes simple empty if blocks and complete zero-valued Back commands such as <code>b0</code>,
                 and <code>echo_grid_mod</code> prints the grid after every instruction that modifies a cell,
                 which is useful while debugging. <code>dont_cache</code> disables reading and writing
-                preprocessed cache entries. <code>no_log</code> suppresses interpreter logging;
+                preprocessed cache entries. Empty while loops and nonzero Back arguments such as <code>b010</code> are preserved.
+                <code>no_log</code> suppresses informational interpreter logging; runtime errors still report
+                a diagnostic on stderr and exit with status 1.
                 CLI and preprocessing messages currently do not consistently honor it.
                 <code>verbosity</code> controls selected informational messages: zero hides them,
                 one enables cache messages, and two also enables preprocessing and interpreter start messages.

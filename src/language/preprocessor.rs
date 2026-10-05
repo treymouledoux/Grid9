@@ -33,10 +33,13 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
 
     let file = read_to_string(file_path).log_expect(Error, "Failed to read script file");
 
+    // Version the cache when preprocessing semantics change. Old entries may
+    // already have lost loops or nonzero Back commands and cannot be reused.
     let mut file_hash: String = Sha256::digest(file.as_bytes())
         .iter()
         .map(|b| format!("{b:02x}"))
         .collect();
+    file_hash.insert_str(0, "v2_");
     if cfg.advanced_preprocess {
         file_hash.push_str("_ap");
     }
@@ -68,13 +71,6 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
     let mut preprocessed_code = file
         .replace(|c: char| c.is_ascii_uppercase(), "")
         .replace([' ', '\n', '\t', '\r', '(', ')', '.', ','], "");
-
-    // Advanced parse
-    if cfg.advanced_preprocess {
-        let re = Regex::new(r"(?:i\d+[=!][01]\}|w\d+[=!][01]\])").unwrap();
-        preprocessed_code = re.replace_all(&preprocessed_code, "").into_owned();
-        preprocessed_code = preprocessed_code.replace("b0", "");
-    }
 
     let chars: Vec<char> = preprocessed_code.chars().collect();
     let mut i = 0;
@@ -272,6 +268,11 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
         std::process::exit(1);
     }
 
+    // Validate before optimizing so invalid arguments cannot disappear.
+    if cfg.advanced_preprocess {
+        preprocessed_code = optimize(&preprocessed_code);
+    }
+
     if !cfg.dont_cache {
         match std::fs::write(
             format!("{}/{}.g9", cache_dir, file_hash),
@@ -289,6 +290,23 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
     }
 
     preprocessed_code
+}
+
+fn optimize(code: &str) -> String {
+    // An empty while can still loop forever, so only remove empty if blocks.
+    let empty_if = Regex::new(r"i[0-8][=!][01]\}").unwrap();
+    let code = empty_if.replace_all(code, "");
+    // Match the entire argument: b010 is a jump of ten, not a b0 prefix.
+    let back = Regex::new(r"b[0-9]+").unwrap();
+    back.replace_all(&code, |captures: &regex::Captures<'_>| {
+        let command = captures.get(0).unwrap().as_str();
+        if command[1..].bytes().all(|digit| digit == b'0') {
+            String::new()
+        } else {
+            command.to_owned()
+        }
+    })
+    .into_owned()
 }
 
 fn prompt_user_continue() -> bool {
@@ -345,4 +363,25 @@ fn validate_condition(chars: &[char], mut i: usize, name: &str) -> usize {
         }
     }
     i
+}
+
+#[cfg(test)]
+mod tests {
+    use super::optimize;
+
+    #[test]
+    fn preserves_empty_while_loops() {
+        assert_eq!(optimize("w0=0]f7p"), "w0=0]f7p");
+        assert_eq!(optimize("w0=1]f7p"), "w0=1]f7p");
+        assert_eq!(optimize("i0=0}f7p"), "f7p");
+    }
+
+    #[test]
+    fn removes_only_complete_zero_back_arguments() {
+        assert_eq!(optimize("b0b00b010b01b10p"), "b010b01b10p");
+        assert_eq!(
+            optimize("b018446744073709551616p"),
+            "b018446744073709551616p"
+        );
+    }
 }

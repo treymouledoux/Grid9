@@ -59,19 +59,16 @@ impl std::fmt::Display for Grid {
     }
 }
 
-pub fn interpret(preprocessed_code: &str, cfg: Config) {
+pub fn interpret(preprocessed_code: &str, cfg: Config) -> Result<(), String> {
     if !cfg.no_log && cfg.verbosity >= 2 {
         logf!(Info, "Interpreting script");
     }
-    if let Err(error) = run(
+    run(
         preprocessed_code,
         &cfg,
         &mut io::stdin().lock(),
         &mut io::stdout(),
-    ) && !cfg.no_log
-    {
-        logf!(Error, "Interpreter error: {}", error);
-    }
+    )
 }
 
 // Match control-flow blocks by character position, including skipped blocks.
