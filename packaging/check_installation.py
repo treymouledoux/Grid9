@@ -1,157 +1,255 @@
-"""Verify the installed layout using the packaged executable on each CI host."""
+"""Install and remove real packages on disposable hosts only.
 
+Requires --system because these checks change system installation locations.
+Every subprocess has a timeout; pre-existing Grid9 installations are refused.
+"""
+
+import argparse
+import ctypes
 import os
 from pathlib import Path
-import subprocess
+import plistlib
 import shutil
 import sys
 import tempfile
 
+from check_runtime import PROJECT, check_runtime, run
 
-def check():
-    project = Path(__file__).resolve().parent.parent
+
+def one_package(extension):
+    paths = list((PROJECT / "target/packages").glob(f"*.{extension}"))
+    if len(paths) != 1:
+        raise RuntimeError(f"Expected one .{extension} package, found {paths}")
+    return paths[0]
+
+
+def absent(*paths):
+    for path in paths:
+        if path.exists() or path.is_symlink():
+            raise RuntimeError(f"Refusing to overwrite an existing installation: {path}")
+
+
+def runtime(binary, root, name):
+    directory = root / name
+    directory.mkdir()
+    check_runtime(binary, directory)
+
+
+def check_linux(root):
+    package = one_package("deb")
+    name = run(["dpkg-deb", "-f", package, "Package"]).stdout.strip()
+    status = run(["dpkg-query", "-W", "-f=${Status}", name], check=False)
+    if status.returncode == 0 and "installed" in status.stdout:
+        raise RuntimeError(f"Refusing to replace installed package {name}")
+    binary = Path("/usr/bin/grid9")
+    absent(binary)
+    assert run(["dpkg-deb", "-f", package, "Architecture"]).stdout.strip() == "amd64"
+    dependencies = run(["dpkg-deb", "-f", package, "Depends"]).stdout
+    assert "libc6 (>= 2.35)" in dependencies and "libgcc-s1" in dependencies
+    sudo = [] if os.geteuid() == 0 else ["sudo", "-n"]
+    environment = dict(os.environ, DEBIAN_FRONTEND="noninteractive")
+    run([*sudo, "apt-get", "update", "-qq"], env=environment, timeout=300)
+    installed = False
+    try:
+        for iteration in range(2):
+            run([*sudo, "apt-get", "install", "-y", "--reinstall", package], env=environment, timeout=300)
+            installed = True
+            assert binary.is_file() and os.access(binary, os.X_OK)
+            assert Path(shutil.which("grid9")).resolve() == binary.resolve()
+            desktop_files = [Path(p) for p in run(["dpkg-query", "-L", name]).stdout.splitlines() if p.endswith(".desktop")]
+            assert desktop_files, "Missing desktop entry"
+            assert any("documentation" in p.read_text() for p in desktop_files)
+            runtime(binary, root, f"linux-{iteration}")
+            # Reinstall over an existing package, retaining user files.
+            sentinel = root / f"linux-{iteration}/user data ü/examples/personal.g9"
+            run([*sudo, "apt-get", "install", "-y", "--reinstall", package], env=environment, timeout=300)
+            assert sentinel.read_text() == "f7p"
+            run([*sudo, "apt-get", "purge", "-y", name], env=environment, timeout=120)
+            installed = False
+            assert not binary.exists()
+            assert all(not p.exists() for p in desktop_files)
+            assert sentinel.exists(), "Package removal deleted user data"
+    finally:
+        if installed:
+            run([*sudo, "apt-get", "purge", "-y", name], env=environment, check=False, timeout=120)
+
+
+def check_macos(root):
+    package = one_package("pkg")
+    app = Path("/Applications/Grid9.app")
+    gui = Path("/Applications/Uninstall Grid9.app")
+    cli = Path("/usr/local/bin/grid9")
+    uninstall = Path("/usr/local/bin/grid9-uninstall")
+    data = Path.home() / "Library/Application Support/Grid9"
+    receipt = "com.treymouledoux.grid9.installer"
+    absent(app, gui, cli, uninstall, data)
+    assert run(["pkgutil", "--pkg-info", receipt], check=False).returncode != 0
+    installed = False
+    try:
+        for iteration in range(2):
+            run(["sudo", "-n", "installer", "-pkg", package, "-target", "/"], timeout=180)
+            installed = True
+            assert cli.is_symlink() and os.readlink(cli) == str(app / "Contents/MacOS/grid9")
+            assert Path(shutil.which("grid9")).resolve() == cli.resolve()
+            assert os.access(uninstall, os.X_OK)
+            assert uninstall.read_bytes() == (PROJECT / "packaging/macos-uninstall.sh").read_bytes()
+            with (gui / "Contents/Info.plist").open("rb") as file:
+                assert plistlib.load(file)["CFBundleIdentifier"] == "com.treymouledoux.grid9.uninstaller"
+            run(["codesign", "--verify", "--strict", gui])
+            run(["pkgutil", "--pkg-info", receipt])
+            runtime(cli, root, f"macos-{iteration}")
+            environment = dict(os.environ)
+            environment.pop("GRID9_DATA_DIR", None)
+            run([cli, "version"], env=environment)
+            assert data.stat().st_uid == os.getuid(), "User data is owned by root"
+            personal = data / "examples/personal.g9"
+            personal.write_text("f7p")
+            run(["sudo", "-n", "installer", "-pkg", package, "-target", "/"], timeout=180)
+            assert personal.read_text() == "f7p", "Upgrade removed personal files"
+            if iteration == 0:
+                # A conflicting terminal command must not trigger partial removal.
+                run(["sudo", "-n", "ln", "-sfn", "/usr/bin/true", cli])
+                failure = run(["sudo", "-n", uninstall], check=False)
+                assert failure.returncode != 0 and app.exists() and personal.exists()
+                run(["sudo", "-n", "ln", "-sfn", app / "Contents/MacOS/grid9", cli])
+            else:
+                # Cleanup must also work after Finder has already removed the app.
+                run(["sudo", "-n", "rm", "-rf", app])
+            run(["sudo", "-n", uninstall, "--user", os.environ["USER"]])
+            installed = False
+            absent(app, gui, cli, uninstall, data)
+            assert run(["pkgutil", "--pkg-info", receipt], check=False).returncode != 0
+            assert (root / f"macos-{iteration}/user data ü/examples/personal.g9").exists(), "Removed a custom data directory"
+    finally:
+        if installed and uninstall.exists():
+            # Restore the expected symlink if an assertion interrupted that test.
+            run(["sudo", "-n", "ln", "-sfn", app / "Contents/MacOS/grid9", cli], check=False)
+            run(["sudo", "-n", uninstall], check=False)
+
+    # DMG installation remains app-only; inspect and execute its actual payload.
+    mount = root / "mounted-dmg"
+    run(["hdiutil", "attach", one_package("dmg"), "-readonly", "-nobrowse", "-mountpoint", mount], timeout=120)
+    try:
+        runtime(mount / "Grid9.app/Contents/MacOS/grid9", root, "dmg")
+    finally:
+        run(["hdiutil", "detach", mount], timeout=60)
+
+
+def windows_resource(path, resource_type):
+    from ctypes import wintypes
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.LoadLibraryExW.argtypes = [wintypes.LPCWSTR, wintypes.HANDLE, wintypes.DWORD]
+    kernel.LoadLibraryExW.restype = wintypes.HMODULE
+    kernel.FindResourceW.argtypes = [wintypes.HMODULE, ctypes.c_void_p, ctypes.c_void_p]
+    kernel.FindResourceW.restype = wintypes.HANDLE
+    kernel.SizeofResource.argtypes = [wintypes.HMODULE, wintypes.HANDLE]
+    kernel.SizeofResource.restype = wintypes.DWORD
+    kernel.LoadResource.argtypes = [wintypes.HMODULE, wintypes.HANDLE]
+    kernel.LoadResource.restype = wintypes.HANDLE
+    kernel.LockResource.argtypes = [wintypes.HANDLE]
+    kernel.LockResource.restype = ctypes.c_void_p
+    kernel.FreeLibrary.argtypes = [wintypes.HMODULE]
+    module = kernel.LoadLibraryExW(str(path), None, 2)
+    assert module, f"Cannot load PE resources: {path}"
+    try:
+        resource = kernel.FindResourceW(module, 1, resource_type)
+        assert resource, f"Missing PE resource {resource_type}: {path}"
+        return ctypes.string_at(kernel.LockResource(kernel.LoadResource(module, resource)), kernel.SizeofResource(module, resource))
+    finally:
+        kernel.FreeLibrary(module)
+
+
+def check_windows(root):
+    import winreg
+    import xml.etree.ElementTree as ET
+    installer = one_package("exe")
+    manifest = ET.fromstring(windows_resource(installer, 24))
+    levels = [element.attrib["level"] for element in manifest.iter() if element.tag.endswith("requestedExecutionLevel")]
+    assert levels == ["asInvoker"], f"Per-user setup must not request elevation: {levels}"
+    install_dir = root / "installed program ü"
+    data = root / "installer data"
+    environment = dict(os.environ, GRID9_DATA_DIR=str(data))
+    binary = install_dir / "grid9.exe"
+    owner_path = r"Software\Trey Mouledoux\Grid9"
+    with winreg.CreateKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
+        try:
+            original_path = winreg.QueryValueEx(key, "Path")
+        except FileNotFoundError:
+            original_path = None
+    with winreg.CreateKey(winreg.HKEY_CURRENT_USER, owner_path) as key:
+        try:
+            original_owner = winreg.QueryValueEx(key, "PathAddedByGrid9")
+        except FileNotFoundError:
+            original_owner = None
+    if original_owner:
+        raise RuntimeError("Refusing to alter an existing Grid9 PATH registration")
+    baseline = os.environ["SystemRoot"] + r"\System32"
+
+    def read_path():
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
+            return winreg.QueryValueEx(key, "Path")[0]
+
+    def matching_entries():
+        return [p for p in read_path().split(';') if p and Path(os.path.expandvars(p.strip('"'))).resolve() == install_dir.resolve()]
+
+    installed = False
+    try:
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment", 0, winreg.KEY_SET_VALUE) as key:
+            winreg.SetValueEx(key, "Path", 0, winreg.REG_EXPAND_SZ, baseline)
+        for iteration in range(2):
+            run([installer, "/S", f"/D={install_dir}"], env=environment, timeout=120)
+            installed = True
+            assert binary.is_file()
+            assert windows_resource(binary, 14), "Missing executable icon"
+            assert len(matching_entries()) == 1 and baseline in read_path().split(';')
+            assert Path(shutil.which("grid9", path=read_path())).resolve() == binary.resolve()
+            assert (data / "documentation/index.html").is_file(), "Setup did not provision resources"
+            runtime(binary, root, f"windows-{iteration}")
+            personal = data / "examples/personal.g9"
+            personal.write_text("f7p")
+            run([installer, "/S", f"/D={install_dir}"], env=environment, timeout=120)
+            assert len(matching_entries()) == 1 and personal.read_text() == "f7p"
+            run([install_dir / "uninstall.exe", "/S", f"_?={install_dir}"], env=environment, timeout=120)
+            installed = False
+            assert not binary.exists() and not (install_dir / "grid9-path.ps1").exists()
+            assert read_path() == baseline, "Uninstall changed unrelated PATH entries"
+            assert personal.exists(), "Uninstall removed user data"
+    finally:
+        if installed:
+            run([install_dir / "uninstall.exe", "/S", f"_?={install_dir}"], env=environment, check=False, timeout=120)
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment", 0, winreg.KEY_SET_VALUE) as key:
+            if original_path is None:
+                try:
+                    winreg.DeleteValue(key, "Path")
+                except FileNotFoundError:
+                    pass
+            else:
+                winreg.SetValueEx(key, "Path", 0, original_path[1], original_path[0])
+        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, owner_path) as key:
+            if original_owner is None:
+                try:
+                    winreg.DeleteValue(key, "PathAddedByGrid9")
+                except FileNotFoundError:
+                    pass
+            else:
+                winreg.SetValueEx(key, "PathAddedByGrid9", 0, original_owner[1], original_owner[0])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--system", action="store_true", help="Allow installation/removal on this disposable host")
+    if not parser.parse_args().system:
+        parser.error("--system is required; use only on a disposable test machine")
     with tempfile.TemporaryDirectory(prefix="grid9-package-check-") as temporary:
         root = Path(temporary)
-        data = root / "data"
-        environment = dict(os.environ, GRID9_DATA_DIR=str(data))
         if sys.platform == "win32":
-            import winreg
-            # An existing Grid9 key without PATH ownership must also work.
-            with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\Trey Mouledoux\Grid9"):
-                pass
-            installer = next((project / "target/packages").glob("*.exe"))
-            install_dir = root / "program"
-            subprocess.run(
-                [str(installer), "/S", f"/D={install_dir}"],
-                env=environment, check=True, timeout=120,
-            )
-            binary = install_dir / "grid9.exe"
-            assert binary.is_file(), f"Installer did not create {binary}"
-            # Verify the app icon is embedded in the installed PE executable.
-            import ctypes
-            from ctypes import wintypes
-            kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
-            kernel32.LoadLibraryExW.argtypes = [wintypes.LPCWSTR, wintypes.HANDLE, wintypes.DWORD]
-            kernel32.LoadLibraryExW.restype = wintypes.HMODULE
-            kernel32.FindResourceW.argtypes = [wintypes.HMODULE, ctypes.c_void_p, ctypes.c_void_p]
-            kernel32.FindResourceW.restype = wintypes.HANDLE
-            kernel32.FreeLibrary.argtypes = [wintypes.HMODULE]
-            module = kernel32.LoadLibraryExW(str(binary), None, 2)  # LOAD_LIBRARY_AS_DATAFILE
-            assert module, f"Could not load executable resources: {ctypes.get_last_error()}"
-            try:
-                assert kernel32.FindResourceW(module, 1, 14), "Installed grid9.exe has no app icon (RT_GROUP_ICON)"
-            finally:
-                kernel32.FreeLibrary(module)
-            import winreg
-            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
-                user_path, _ = winreg.QueryValueEx(key, "Path")
-            assert os.environ["SystemRoot"] + r"\System32" in user_path.split(';'), "Installer changed the existing PATH entry"
-            def path_directory(entry):
-                return Path(os.path.expandvars(entry.strip().strip('"'))).resolve()
-
-            matches = [p for p in user_path.split(';') if p and path_directory(p) == install_dir.resolve()]
-            assert len(matches) == 1, f"Expected one PATH entry for {install_dir}; user PATH: {user_path!r}"
-            environment["PATH"] = os.path.expandvars(user_path) + os.pathsep + environment["PATH"]
-            resolved = shutil.which("grid9", path=environment["PATH"])
-            assert resolved and Path(resolved).resolve() == binary.resolve(), f"grid9 resolved to {resolved!r}; expected {binary}"
-            # Verify install-time provisioning before running the installed app.
-            assert (data / "documentation/index.html").is_file()
-            for directory in ["logs", "preprocessor_cache"]:
-                assert (data / directory).is_dir()
-                assert not list((data / directory).iterdir()), directory
+            check_windows(root)
         elif sys.platform == "darwin":
-            package = next((project / "target/packages").glob("*.pkg"))
-            extracted = root / "package"
-            subprocess.run(["pkgutil", "--expand-full", str(package), str(extracted)], check=True)
-            import xml.etree.ElementTree as ET
-            info = ET.parse(extracted / "PackageInfo").getroot()
-            assert info.get("install-location") == "/"
-            assert info.get("relocatable") == "false"
-            assert not info.findall("relocate/bundle"), "PKG must not relocate Grid9.app to another copy"
-            cli = extracted / "Payload/usr/local/bin/grid9"
-            assert cli.is_symlink()
-            assert os.readlink(cli) == "/Applications/Grid9.app/Contents/MacOS/grid9"
-            # The absolute link targets the real install location; run the
-            # bundled executable directly while inspecting an extracted PKG.
-            binary = extracted / "Payload/Applications/Grid9.app/Contents/MacOS/grid9"
-            assert binary.is_file()
-            uninstaller = extracted / "Payload/usr/local/bin/grid9-uninstall"
-            assert uninstaller.read_bytes() == (project / "packaging/macos-uninstall.sh").read_bytes()
-            assert os.access(uninstaller, os.X_OK)
-            subprocess.run(["/bin/sh", "-n", str(uninstaller)], check=True)
+            check_macos(root)
         else:
-            package = next((project / "target/packages").glob("*.deb"))
-            extracted = root / "package"
-            subprocess.run(["dpkg-deb", "--extract", str(package), str(extracted)], check=True)
-            binary = extracted / "usr/bin/grid9"
-
-        def run(*args):
-            return subprocess.run(
-                [str(binary), *args], env=environment, cwd=root,
-                check=True, capture_output=True, text=True,
-            ).stdout
-
-        print(run("version").strip())
-        for directory in ["logs", "preprocessor_cache"]:
-            assert (data / directory).is_dir()
-            assert not list((data / directory).iterdir()), directory
-
-        components = project / "src/components"
-        count = 0
-        for component in ["documentation", "examples"]:
-            for source in (components / component).rglob("*"):
-                relative = source.relative_to(components)
-                if source.is_file() and not any(p.startswith(".") for p in relative.parts):
-                    assert (data / relative).read_bytes() == source.read_bytes(), relative
-                    count += 1
-        # Also exercise initialization when the first command runs an example.
-        environment["GRID9_DATA_DIR"] = str(root / "first-run")
-        assert "Hello world" in run("interpret", "--example", "example1")
-        assert (root / "first-run/documentation/index.html").is_file()
-        assert (root / "first-run/preprocessor_cache").is_dir()
-        assert (root / "first-run/logs").is_dir()
-        print(f"Verified {count} component files, empty initial cache/logs, and first-run example execution.")
-        if sys.platform == "win32":
-            # Verify uninstallation removes the entry owned by Grid9.
-            subprocess.run([
-                str(install_dir / "uninstall.exe"), "/S", f"_?={install_dir}",
-            ], env=environment, check=True, timeout=120)
-            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
-                user_path, _ = winreg.QueryValueEx(key, "Path")
-            assert not any(p and path_directory(p) == install_dir.resolve() for p in user_path.split(';')), f"Uninstall left {install_dir} in user PATH: {user_path!r}"
-            assert user_path == os.environ["SystemRoot"] + r"\System32", f"Uninstall changed the existing PATH: {user_path!r}"
-            # Uninstall leaves the key but removes PathAddedByGrid9. Reinstall
-            # must succeed in exactly the state shown by the reported failure.
-            subprocess.run([str(installer), "/S", f"/D={install_dir}"],
-                           env=environment, check=True, timeout=120)
-            assert binary.is_file(), "Reinstallation failed"
-            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
-                user_path, _ = winreg.QueryValueEx(key, "Path")
-            assert sum(bool(p) and path_directory(p) == install_dir.resolve() for p in user_path.split(';')) == 1, f"Reinstall PATH incorrect: {user_path!r}"
-            subprocess.run([str(install_dir / "uninstall.exe"), "/S", f"_?={install_dir}"],
-                           env=environment, check=True, timeout=120)
-            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
-                user_path, _ = winreg.QueryValueEx(key, "Path")
-            assert user_path == os.environ["SystemRoot"] + r"\System32", f"Second uninstall changed PATH: {user_path!r}"
+            check_linux(root)
+    print("Install, upgrade, uninstall, and reinstall checks passed.")
 
 
 if __name__ == "__main__":
-    if sys.platform == "win32":
-        import winreg
-        # Exercise the single-entry PATH regression, preserving the host's
-        # original value even if installation or verification fails.
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment", 0, winreg.KEY_READ | winreg.KEY_SET_VALUE) as key:
-            try:
-                original_path = winreg.QueryValueEx(key, "Path")
-            except FileNotFoundError:
-                original_path = None
-            try:
-                winreg.SetValueEx(key, "Path", 0, winreg.REG_EXPAND_SZ, os.environ["SystemRoot"] + r"\System32")
-                check()
-            finally:
-                if original_path is None:
-                    winreg.DeleteValue(key, "Path")
-                else:
-                    winreg.SetValueEx(key, "Path", 0, original_path[1], original_path[0])
-    else:
-        check()
+    main()

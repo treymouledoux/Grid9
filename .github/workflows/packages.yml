@@ -3,29 +3,91 @@ name: Build installers
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     tags: ["v*"]
-  pull_request:
     paths:
-      - "Cargo.toml"
-      - "Cargo.lock"
+      - "Cargo.*"
+      - "rust-toolchain.toml"
       - "build.rs"
       - "src/**"
+      - "tests/**"
+      - "packaging/**"
+      - ".github/workflows/packages.yml"
+  pull_request:
+    paths:
+      - "Cargo.*"
+      - "rust-toolchain.toml"
+      - "build.rs"
+      - "src/**"
+      - "tests/**"
       - "packaging/**"
       - ".github/workflows/packages.yml"
 
 permissions:
   contents: read
 
+concurrency:
+  group: packages-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+env:
+  CARGO_TERM_COLOR: always
+  PACKAGER_VERSION: "0.11.8"
+
 jobs:
+  validate:
+    name: Source checks (${{ matrix.os }})
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2025, ubuntu-22.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: grid9-${{ matrix.os }}
+          cache-bin: "false"
+          cache-workspace-crates: "true"
+      - name: Check Rust formatting
+        run: cargo fmt --all -- --check
+      - name: Lint all Rust targets
+        run: cargo clippy --locked --all-targets -- -D warnings
+      - name: Test debug build
+        run: cargo test --locked
+      - name: Test release build
+        run: cargo test --release --locked
+      - name: Test packaging helpers and documentation links
+        run: python -m unittest discover -s packaging/tests -v
+      - name: Test Windows PATH helper
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./packaging/test_windows_path.ps1
+      - name: Check uninstaller syntax
+        if: runner.os != 'Windows'
+        run: sh -n packaging/macos-uninstall.sh
+      - name: Check release executable before packaging
+        run: python packaging/check_runtime.py
+
   package:
+    name: Package and install (${{ matrix.artifact }})
+    # No platform generates bundles until all three source-check jobs pass.
+    needs: validate
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: windows-latest
+          - os: windows-2025
             formats: nsis
             artifact: windows-x64
-          - os: ubuntu-24.04
+          - os: ubuntu-22.04
             formats: deb
             artifact: linux-x64
           - os: macos-15
@@ -34,19 +96,51 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
-      - uses: dtolnay/rust-toolchain@stable
-      - name: Test
-        run: cargo test --locked
-      - name: Install cargo-packager
-        run: cargo install cargo-packager --version 0.11.8 --locked
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Rust toolchain
+        run: rustup show
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: grid9-${{ matrix.os }}
+          cache-bin: "false"
+          cache-workspace-crates: "true"
+      - name: Restore compiled cargo-packager
+        id: packager-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/grid9-packager
+          key: packager-${{ matrix.os }}-${{ runner.arch }}-${{ env.PACKAGER_VERSION }}-${{ hashFiles('rust-toolchain.toml') }}
+      - name: Install cargo-packager on cache miss
+        if: steps.packager-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: cargo install cargo-packager --version "$PACKAGER_VERSION" --locked --root "$HOME/.cache/grid9-packager"
+      - name: Cache compiled cargo-packager immediately
+        if: steps.packager-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/grid9-packager
+          key: ${{ steps.packager-cache.outputs.cache-primary-key }}
+      - name: Add cargo-packager to PATH
+        shell: bash
+        run: echo "$HOME/.cache/grid9-packager/bin" >> "$GITHUB_PATH"
+      - name: Verify tooling and release version
+        run: python packaging/preflight.py
       - name: Package
         run: cargo packager --release --formats ${{ matrix.formats }}
       - name: Build macOS CLI installer
         if: runner.os == 'macOS'
-        run: python3 packaging/build_macos_pkg.py
-      - name: Check packaged binary and user data layout
-        run: python packaging/check_installation.py
-      - uses: actions/upload-artifact@v4
+        run: python packaging/build_macos_pkg.py
+      - name: Test real install, upgrade, uninstall, and reinstall
+        run: python packaging/check_installation.py --system
+      - name: Test Linux package on Ubuntu 24.04 too
+        if: runner.os == 'Linux'
+        run: >-
+          docker run --rm -v "$PWD:/project:ro" -w /project ubuntu:24.04
+          bash -c 'apt-get update -qq && apt-get install -y python3 && python3 packaging/check_installation.py --system'
+      - name: Upload only verified bundles
+        uses: actions/upload-artifact@v4
         with:
           name: grid9-${{ matrix.artifact }}
           path: |
@@ -55,3 +149,25 @@ jobs:
             target/packages/*.dmg
             target/packages/*.pkg
           if-no-files-found: error
+
+  release:
+    name: Stage verified release
+    needs: package
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: grid9-*
+          path: dist
+          merge-multiple: true
+      - name: Create draft release with checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python packaging/release.py

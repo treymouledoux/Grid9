@@ -21,8 +21,6 @@ icons = ["packaging/icon.ico"]
 installMode = "currentUser"
 installer-icon = "packaging/icon.ico"
 preinstall-section = '''
-RequestExecutionLevel admin
-
 Section "Grid9 user data"
   InitPluginsDir
   SetOutPath "$PLUGINSDIR"
@@ -59,7 +57,7 @@ SectionEnd
 
 [package.metadata.packager.deb]
 section = "devel"
-depends = ["libc6", "xdg-utils"]
+depends = ["libc6 (>= 2.35)", "libgcc-s1", "xdg-utils"]
 desktop-template = "packaging/grid9.desktop"
 
 [dependencies]

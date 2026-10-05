@@ -34,11 +34,29 @@ def build():
         uninstaller = cli.parent / "grid9-uninstall"
         shutil.copy2(project / "packaging/macos-uninstall.sh", uninstaller)
         uninstaller.chmod(0o755)
+        uninstall_app = payload / "Applications/Uninstall Grid9.app"
+        subprocess.run([
+            "osacompile", "-o", str(uninstall_app),
+            str(project / "packaging/macos-uninstall.applescript"),
+        ], check=True)
+        plist_path = uninstall_app / "Contents/Info.plist"
+        with plist_path.open("rb") as file:
+            uninstall_info = plistlib.load(file)
+        uninstall_info["CFBundleIdentifier"] = "com.treymouledoux.grid9.uninstaller"
+        with plist_path.open("wb") as file:
+            plistlib.dump(uninstall_info, file)
+        # Updating Info.plist invalidates osacompile's ad-hoc signature.
+        subprocess.run(["codesign", "--force", "--sign", "-", str(uninstall_app)], check=True)
         components = Path(temporary) / "components.plist"
         # Never redirect installation to a build, downloaded, or moved copy.
         with components.open("wb") as file:
             plistlib.dump([{
                 "RootRelativeBundlePath": "Applications/Grid9.app",
+                "BundleIsRelocatable": False,
+                "BundleIsVersionChecked": False,
+                "BundleOverwriteAction": "upgrade",
+            }, {
+                "RootRelativeBundlePath": "Applications/Uninstall Grid9.app",
                 "BundleIsRelocatable": False,
                 "BundleIsVersionChecked": False,
                 "BundleOverwriteAction": "upgrade",
