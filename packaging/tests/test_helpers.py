@@ -9,6 +9,7 @@ from urllib.parse import unquote, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from check_runtime import PROJECT, run
+from check_installation import nsis_command
 from preflight import validate_tag
 from release import checksums
 
@@ -29,6 +30,12 @@ class Links(HTMLParser):
 
 
 class PackagingTests(unittest.TestCase):
+    def test_nsis_directory_arguments_are_last_and_unquoted(self):
+        executable = r"C:\setup files\Grid9.exe"
+        directory = r"C:\Users\test user\installed ü"
+        self.assertEqual(nsis_command(executable, directory), f'"{executable}" /S /D={directory}')
+        self.assertEqual(nsis_command(executable, directory, uninstall=True), f'"{executable}" /S _?={directory}')
+
     def test_release_tag_must_match_cargo_version(self):
         validate_tag("", "2026.1.0")
         validate_tag("v2026.1.0", "2026.1.0")

@@ -11,7 +11,7 @@ PROJECT = Path(__file__).resolve().parent.parent
 
 def run(command, *, env=None, cwd=None, input=None, check=True, timeout=30):
     result = subprocess.run(
-        [str(arg) for arg in command], env=env, cwd=cwd, input=input,
+        command if isinstance(command, str) else [str(arg) for arg in command], env=env, cwd=cwd, input=input,
         capture_output=True, text=True, timeout=timeout,
     )
     if check and result.returncode:

@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import plistlib
 import shutil
+import subprocess
 import sys
 import tempfile
 
@@ -162,6 +163,13 @@ def windows_resource(path, resource_type):
         kernel.FreeLibrary(module)
 
 
+def nsis_command(executable, directory, *, uninstall=False):
+    # NSIS requires /D= and _?= last and unquoted, even with spaces.
+    # Pass the raw command line directly to CreateProcess, never a shell.
+    prefix = subprocess.list2cmdline([str(executable), "/S"])
+    return prefix + (" _?=" if uninstall else " /D=") + str(directory)
+
+
 def check_windows(root):
     import winreg
     import xml.etree.ElementTree as ET
@@ -200,7 +208,7 @@ def check_windows(root):
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment", 0, winreg.KEY_SET_VALUE) as key:
             winreg.SetValueEx(key, "Path", 0, winreg.REG_EXPAND_SZ, baseline)
         for iteration in range(2):
-            run([installer, "/S", f"/D={install_dir}"], env=environment, timeout=120)
+            run(nsis_command(installer, install_dir), env=environment, timeout=120)
             installed = True
             assert binary.is_file()
             assert windows_resource(binary, 14), "Missing executable icon"
@@ -210,32 +218,35 @@ def check_windows(root):
             runtime(binary, root, f"windows-{iteration}")
             personal = data / "examples/personal.g9"
             personal.write_text("f7p")
-            run([installer, "/S", f"/D={install_dir}"], env=environment, timeout=120)
+            run(nsis_command(installer, install_dir), env=environment, timeout=120)
             assert len(matching_entries()) == 1 and personal.read_text() == "f7p"
-            run([install_dir / "uninstall.exe", "/S", f"_?={install_dir}"], env=environment, timeout=120)
+            run(nsis_command(install_dir / "uninstall.exe", install_dir, uninstall=True), env=environment, timeout=120)
             installed = False
             assert not binary.exists() and not (install_dir / "grid9-path.ps1").exists()
             assert read_path() == baseline, "Uninstall changed unrelated PATH entries"
             assert personal.exists(), "Uninstall removed user data"
     finally:
-        if installed:
-            run([install_dir / "uninstall.exe", "/S", f"_?={install_dir}"], env=environment, check=False, timeout=120)
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment", 0, winreg.KEY_SET_VALUE) as key:
-            if original_path is None:
-                try:
-                    winreg.DeleteValue(key, "Path")
-                except FileNotFoundError:
-                    pass
-            else:
-                winreg.SetValueEx(key, "Path", 0, original_path[1], original_path[0])
-        with winreg.CreateKey(winreg.HKEY_CURRENT_USER, owner_path) as key:
-            if original_owner is None:
-                try:
-                    winreg.DeleteValue(key, "PathAddedByGrid9")
-                except FileNotFoundError:
-                    pass
-            else:
-                winreg.SetValueEx(key, "PathAddedByGrid9", 0, original_owner[1], original_owner[0])
+        try:
+            if installed and (install_dir / "uninstall.exe").exists():
+                run(nsis_command(install_dir / "uninstall.exe", install_dir, uninstall=True), env=environment, check=False, timeout=120)
+        finally:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment", 0, winreg.KEY_SET_VALUE) as key:
+                if original_path is None:
+                    try:
+                        winreg.DeleteValue(key, "Path")
+                    except FileNotFoundError:
+                        pass
+                else:
+                    winreg.SetValueEx(key, "Path", 0, original_path[1], original_path[0])
+            with winreg.CreateKey(winreg.HKEY_CURRENT_USER, owner_path) as key:
+                if original_owner is None:
+                    try:
+                        winreg.DeleteValue(key, "PathAddedByGrid9")
+                    except FileNotFoundError:
+                        pass
+                else:
+                    winreg.SetValueEx(key, "PathAddedByGrid9", 0, original_owner[1], original_owner[0])
+
 
 
 def main():
