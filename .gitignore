@@ -16,3 +16,10 @@ target/
 
 #Mac
 .DS_Store
+
+# Python packaging checks
+__pycache__/
+*.py[cod]
+
+# Downloaded release artifacts
+dist/

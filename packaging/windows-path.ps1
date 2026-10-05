@@ -19,7 +19,14 @@ if ($null -ne $ownershipKey) {
         $ownershipKey.Dispose()
     }
 }
-$original = [Environment]::GetEnvironmentVariable('Path', 'User')
+# Read the raw value so expandable entries such as %USERPROFILE% survive.
+$environmentKey = [Microsoft.Win32.Registry]::CurrentUser.CreateSubKey('Environment')
+try {
+    $original = $environmentKey.GetValue('Path', $null, [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+    $pathKind = if ($null -eq $original) { [Microsoft.Win32.RegistryValueKind]::ExpandString } else { $environmentKey.GetValueKind('Path') }
+} finally {
+    $environmentKey.Dispose()
+}
 # Keep even a single PATH entry as an array: string += would concatenate
 # the installation directory without the required semicolon separator.
 [string[]]$entries = if ([string]::IsNullOrEmpty($original)) { @() } else { @($original -split ';') }
@@ -51,7 +58,12 @@ if ($Action -eq 'Add') {
 
 $updated = $entries -join ';'
 if ($updated -ne $original) {
-    [Environment]::SetEnvironmentVariable('Path', $updated, 'User')
+    $environmentKey = [Microsoft.Win32.Registry]::CurrentUser.CreateSubKey('Environment')
+    try {
+        $environmentKey.SetValue('Path', $updated, $pathKind)
+    } finally {
+        $environmentKey.Dispose()
+    }
     Add-Type @'
 using System;
 using System.Runtime.InteropServices;

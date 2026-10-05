@@ -111,7 +111,7 @@ fn clear_dir(dir: &Path) -> std::io::Result<()> {
             logf!(Info, "Removed \"{}\"", path.into_string().unwrap());
         } else {
             fs::remove_file(&path)?;
-            logf!(Info, "Removed \"{}\"", path.into_string().unwrap())
+            logf!(Info, "Removed \"{}\"", path.into_string().unwrap());
         }
     }
     Ok(())

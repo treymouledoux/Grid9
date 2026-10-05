@@ -90,7 +90,7 @@ fn main() {
                 logf!(
                     Info,
                     "If you are meaning to use grid9 in the cli, please run grid9 help for a full command list."
-                )
+                );
             }
         }
         Command::Interpret { example, input } => {
@@ -147,18 +147,18 @@ fn main() {
                         logf!(
                             Warning,
                             "This script was made for a newer version of Grid9, it may not work as intended, continuing anyways..."
-                        )
+                        );
                     }
                     Ok(Ordering::Equal) | Ok(Ordering::Less) => {
                         if cfg.verbosity >= 2 {
-                            logf!(Info, "Script within installed Grid9 compatability range")
+                            logf!(Info, "Script within installed Grid9 compatability range");
                         }
                     }
                     Err(_) => {
                         logf!(
                             Error,
                             "Failed to parse script version, please check script config"
-                        )
+                        );
                     }
                 }
 
@@ -178,12 +178,12 @@ fn main() {
                     logf!(
                         Warning,
                         "No example found with name '{input}', double check the name of the requested example"
-                    )
+                    );
                 } else {
                     logf!(
                         Error,
                         "File '{path}' not found, check to make sure the correct path has been specified"
-                    )
+                    );
                 }
             }
         }

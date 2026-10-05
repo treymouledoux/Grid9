@@ -21,7 +21,7 @@ Follow the installer prompts. See the [macOS installation notes](docs/packaging.
 
 ### Uninstalling on macOS
 
-For installations made with the current `.pkg` installer, run:
+For installations made with the current `.pkg` installer, open **Uninstall Grid9** in Applications, or run:
 
 ```sh
 sudo /usr/local/bin/grid9-uninstall
