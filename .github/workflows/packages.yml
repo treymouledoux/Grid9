@@ -49,7 +49,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install pinned Rust toolchain
-        run: rustup show
+        run: rustup install
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: grid9-${{ matrix.os }}
@@ -100,7 +100,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install pinned Rust toolchain
-        run: rustup show
+        run: rustup install
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: grid9-${{ matrix.os }}

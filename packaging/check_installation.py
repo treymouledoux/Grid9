@@ -39,7 +39,7 @@ def check_linux(root):
     package = one_package("deb")
     name = run(["dpkg-deb", "-f", package, "Package"]).stdout.strip()
     status = run(["dpkg-query", "-W", "-f=${Status}", name], check=False)
-    if status.returncode == 0 and "installed" in status.stdout:
+    if status.returncode == 0 and status.stdout.strip() == "install ok installed":
         raise RuntimeError(f"Refusing to replace installed package {name}")
     binary = Path("/usr/bin/grid9")
     absent(binary)
@@ -128,6 +128,7 @@ def check_macos(root):
 
     # DMG installation remains app-only; inspect and execute its actual payload.
     mount = root / "mounted-dmg"
+    mount.mkdir()
     run(["hdiutil", "attach", one_package("dmg"), "-readonly", "-nobrowse", "-mountpoint", mount], timeout=120)
     try:
         runtime(mount / "Grid9.app/Contents/MacOS/grid9", root, "dmg")

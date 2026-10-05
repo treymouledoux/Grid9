@@ -185,12 +185,16 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
                             i += 1;
                             if !matches!(chars.get(i), Some('0'..='8') | Some('c')) {
                                 match chars.get(i) {
-                                    Some(c) => logf!(
-                                        Error,
-                                        "Invalid grid id \"{}\" for grid xor command",
-                                        c
-                                    ),
-                                    None => logf!(Error, "Missing grid id for grid xor command"),
+                                    Some(c) => {
+                                        logf!(
+                                            Error,
+                                            "Invalid grid id \"{}\" for grid xor command",
+                                            c
+                                        );
+                                    }
+                                    None => {
+                                        logf!(Error, "Missing grid id for grid xor command");
+                                    }
                                 }
                                 std::process::exit(1);
                             }
@@ -232,7 +236,7 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
                     "Invalid charcater \"{}\" found at index {}",
                     chars.get(i).unwrap(),
                     i
-                )
+                );
             }
         }
 
@@ -281,11 +285,13 @@ pub fn preprocess(file_path: &PathBuf, mut cfg: Config) -> String {
             Ok(_) => {
                 return preprocessed_code;
             }
-            Err(e) => logf!(
-                Warning,
-                "Failed to write preprocessed file to preprocessor cache: {}",
-                e
-            ),
+            Err(e) => {
+                logf!(
+                    Warning,
+                    "Failed to write preprocessed file to preprocessor cache: {}",
+                    e
+                );
+            }
         }
     }
 
