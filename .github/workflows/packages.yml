@@ -45,7 +45,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install pinned Rust toolchain
@@ -96,7 +96,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install pinned Rust toolchain
@@ -108,7 +108,7 @@ jobs:
           cache-workspace-crates: "true"
       - name: Restore compiled cargo-packager
         id: packager-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: ~/.cache/grid9-packager
           key: packager-${{ matrix.os }}-${{ runner.arch }}-${{ env.PACKAGER_VERSION }}-${{ hashFiles('rust-toolchain.toml') }}
@@ -118,7 +118,7 @@ jobs:
         run: cargo install cargo-packager --version "$PACKAGER_VERSION" --locked --root "$HOME/.cache/grid9-packager"
       - name: Cache compiled cargo-packager immediately
         if: steps.packager-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: ~/.cache/grid9-packager
           key: ${{ steps.packager-cache.outputs.cache-primary-key }}
@@ -140,7 +140,7 @@ jobs:
           docker run --rm -v "$PWD:/project:ro" -w /project ubuntu:24.04
           bash -c 'apt-get update -qq && apt-get install -y python3 && python3 packaging/check_installation.py --system'
       - name: Upload only verified bundles
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: grid9-${{ matrix.artifact }}
           path: |
@@ -159,10 +159,10 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           pattern: grid9-*
           path: dist

@@ -8,8 +8,8 @@ $original = $environment.GetValue('Path', $null, $options)
 $originalKind = if ($null -ne $original) { $environment.GetValueKind('Path') }
 $previous = $owner.GetValue('PathAddedByGrid9', $null)
 $previousKind = if ($null -ne $previous) { $owner.GetValueKind('PathAddedByGrid9') }
-$bin = Join-Path $env:TEMP 'Grid9 path test ü'
-$other = Join-Path $env:TEMP 'Grid9 moved'
+$bin = [IO.Path]::GetFullPath((Join-Path $env:TEMP 'Grid9 path test ü'))
+$other = [IO.Path]::GetFullPath((Join-Path $env:TEMP 'Grid9 moved'))
 function AssertEqual($Actual, $Expected, $Message) {
     if ($Actual -cne $Expected) { throw "$Message - expected [$Expected], got [$Actual]" }
 }
