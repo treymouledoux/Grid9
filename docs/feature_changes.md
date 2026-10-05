@@ -30,10 +30,10 @@ See the [migration guide](migration.md) for key mappings and defaults.
 
 ## Preprocessing and caching
 
-- Source contents are hashed with SHA-256. Cache filenames include `_ap` when `advanced_preprocess` is enabled.
+- Source contents are hashed with SHA-256. Cache filenames start with the preprocessing revision (`v2_`) and include `_ap` when `advanced_preprocess` is enabled.
 - An unreadable cache entry triggers a warning and preprocessing without caching. Readable cached code is returned without preprocessing validation; content corruption is not automatically detected. To remove cached entries, use `grid9 clean preprocessor_cache` or `grid9 cl preprocessor_cache`.
-- `advanced_preprocess` removes simple empty if/while blocks and `b0`. It changes the character positions used by Back, so calculate offsets against the preprocessed code.
-- Commands and arguments are validated during preprocessing. Unexpected characters produce warnings; invalid command arguments and mismatched closing brackets stop preprocessing.
+- `advanced_preprocess` removes simple empty if blocks and complete Back commands whose numeric argument is zero. Empty while loops are preserved because they can loop forever; leading-zero nonzero arguments such as `b010` are preserved. Optimizations change the character positions used by Back, so calculate offsets against the preprocessed code.
+- Commands and arguments are validated before optimization during preprocessing. Unexpected characters produce warnings; invalid command arguments and mismatched closing brackets stop preprocessing.
 - Unclosed blocks prompt to append their missing closing brackets. This check also runs with advanced preprocessing disabled.
 
 Uppercase ASCII letters, spaces, tabs, line breaks, parentheses, periods, and commas are removed. Comments are uppercase text, not whole ignored lines: digits and lowercase letters remain executable. Use words such as `FOUR` rather than `4` and avoid lowercase command examples inside comments.
@@ -58,6 +58,6 @@ grid9 convert decode 000000010
 grid9 clean preprocessor_cache
 ```
 
-`c` aliases `convert`; `cl` aliases `clean`. Logging uses [scorched](https://github.com/treymouledoux/scorched). `no_log` suppresses interpreter logging, but preprocessing and CLI logging currently do not consistently honor it. `verbosity` controls selected informational messages, not every diagnostic.
+`c` aliases `convert`; `cl` aliases `clean`. Logging uses [scorched](https://github.com/treymouledoux/scorched). Runtime failures report an error on stderr and exit with status 1, including when `no_log` is enabled. `no_log` suppresses informational interpreter logging, but preprocessing and CLI logging currently do not consistently honor it. `verbosity` controls selected informational messages, not every diagnostic.
 
 The current example directory contains `.g9` scripts and companion TOML files; the legacy examples subdirectory is absent.
