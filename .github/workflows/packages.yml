@@ -106,6 +106,13 @@ jobs:
           shared-key: grid9-${{ matrix.os }}
           cache-bin: "false"
           cache-workspace-crates: "true"
+      - name: Add cargo-packager to PATH
+        shell: python {0}
+        run: |
+          import os
+          from pathlib import Path
+          with open(os.environ["GITHUB_PATH"], "a", encoding="utf-8") as file:
+              file.write(str(Path.home() / ".cache/grid9-packager/bin") + "\n")
       - name: Restore compiled cargo-packager
         id: packager-cache
         uses: actions/cache/restore@v5
@@ -114,17 +121,21 @@ jobs:
           key: packager-${{ matrix.os }}-${{ runner.arch }}-${{ env.PACKAGER_VERSION }}-${{ hashFiles('rust-toolchain.toml') }}
       - name: Install cargo-packager on cache miss
         if: steps.packager-cache.outputs.cache-hit != 'true'
-        shell: bash
-        run: cargo install cargo-packager --version "$PACKAGER_VERSION" --locked --root "$HOME/.cache/grid9-packager"
+        shell: python {0}
+        run: |
+          import os
+          from pathlib import Path
+          import subprocess
+          subprocess.run([
+              "cargo", "install", "cargo-packager", "--version", os.environ["PACKAGER_VERSION"],
+              "--locked", "--root", str(Path.home() / ".cache/grid9-packager"),
+          ], check=True)
       - name: Cache compiled cargo-packager immediately
         if: steps.packager-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
         with:
           path: ~/.cache/grid9-packager
           key: ${{ steps.packager-cache.outputs.cache-primary-key }}
-      - name: Add cargo-packager to PATH
-        shell: bash
-        run: echo "$HOME/.cache/grid9-packager/bin" >> "$GITHUB_PATH"
       - name: Verify tooling and release version
         run: python packaging/preflight.py
       - name: Package

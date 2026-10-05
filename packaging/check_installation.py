@@ -129,7 +129,9 @@ def check_macos(root):
     # DMG installation remains app-only; inspect and execute its actual payload.
     mount = root / "mounted-dmg"
     mount.mkdir()
-    run(["hdiutil", "attach", one_package("dmg"), "-readonly", "-nobrowse", "-mountpoint", mount], timeout=120)
+    # cargo-packager embeds our GPL license in the image; hdiutil asks for
+    # acceptance on stdin even in a headless CI session.
+    run(["hdiutil", "attach", one_package("dmg"), "-readonly", "-nobrowse", "-mountpoint", mount], input="Y\n", timeout=120)
     try:
         runtime(mount / "Grid9.app/Contents/MacOS/grid9", root, "dmg")
     finally:
