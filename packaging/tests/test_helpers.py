@@ -5,13 +5,14 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from urllib.parse import unquote, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from check_runtime import PROJECT, run
 from check_installation import nsis_command
 from preflight import validate_tag
-from release import checksums
+from release import checksums, validate_bundles
 
 
 class Links(HTMLParser):
@@ -42,6 +43,16 @@ class PackagingTests(unittest.TestCase):
         for tag in ["v2026.2.0", "2026.1.0", "v2026.1.0-extra"]:
             with self.assertRaises(ValueError):
                 validate_tag(tag, "2026.1.0")
+
+    def test_release_requires_both_linux_architectures(self):
+        paths = [Path(name) for name in ["setup.exe", "intel.deb", "arm.deb", "mac.dmg", "mac.pkg"]]
+        with patch("release.subprocess.check_output", side_effect=["amd64\n", "arm64\n"]):
+            validate_bundles(paths)
+        with self.assertRaisesRegex(RuntimeError, "Missing or duplicate"):
+            validate_bundles([p for p in paths if p.name != "arm.deb"])
+        with patch("release.subprocess.check_output", side_effect=["amd64\n", "amd64\n"]):
+            with self.assertRaisesRegex(RuntimeError, "Expected one amd64 and one arm64"):
+                validate_bundles(paths)
 
     def test_checksums_are_sorted_and_match_bytes(self):
         with tempfile.TemporaryDirectory() as temporary:

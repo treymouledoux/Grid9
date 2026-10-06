@@ -16,13 +16,27 @@ def checksums(paths):
     )
 
 
+def validate_bundles(paths):
+    expected_counts = {".exe": 1, ".deb": 2, ".dmg": 1, ".pkg": 1}
+    counts = {suffix: sum(p.suffix == suffix for p in paths) for suffix in expected_counts}
+    if counts != expected_counts:
+        raise RuntimeError("Missing or duplicate platform bundles; refusing to create a partial release")
+    architectures = [
+        subprocess.check_output(
+            ["dpkg-deb", "-f", str(path), "Architecture"], text=True, timeout=30,
+        ).strip()
+        for path in paths if path.suffix == ".deb"
+    ]
+    if sorted(architectures) != ["amd64", "arm64"]:
+        raise RuntimeError(f"Expected one amd64 and one arm64 Debian package, found {architectures}")
+
+
 def main():
     version = tomllib.loads(Path("Cargo.toml").read_text())["package"]["version"]
     tag = os.environ["GITHUB_REF_NAME"]
     validate_tag(tag, version)
     paths = [p for p in Path("dist").iterdir() if p.suffix in {".exe", ".deb", ".dmg", ".pkg"}]
-    if {p.suffix for p in paths} != {".exe", ".deb", ".dmg", ".pkg"}:
-        raise RuntimeError("Missing platform bundles; refusing to create a partial release")
+    validate_bundles(paths)
     checksum_file = Path("dist/SHA256SUMS")
     checksum_file.write_text(checksums(paths), encoding="utf-8")
     subprocess.run([
