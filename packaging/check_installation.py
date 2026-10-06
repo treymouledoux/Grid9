@@ -55,7 +55,11 @@ def check_linux(root):
     account = f"grid9-ci-{os.getpid()}"
     account_home = root / "test account home ü"
     root.chmod(0o755)
-    run([*sudo, "useradd", "--create-home", "--home-dir", account_home, account])
+    run([*sudo, "useradd", "--system", "--user-group", "--no-create-home",
+         "--no-log-init", "--home-dir", account_home, account], timeout=120)
+    run([*sudo, "mkdir", "-p", account_home])
+    run([*sudo, "chown", account, account_home])
+    run([*sudo, "chmod", "755", account_home])
     account_uid = run(["id", "-u", account]).stdout.strip()
     default_data = account_home / ".local/share/Grid9"
 
@@ -115,7 +119,8 @@ def check_linux(root):
             if installed:
                 run([*sudo, "apt-get", "purge", "-y", name], env=environment, check=False, timeout=120)
         finally:
-            run([*sudo, "userdel", "--remove", account], check=False, timeout=30)
+            run([*sudo, "userdel", account], check=False, timeout=120)
+            run([*sudo, "rm", "-rf", "--", account_home], check=False)
 
 
 def check_macos(root):
