@@ -44,7 +44,9 @@ def check_linux(root):
         raise RuntimeError(f"Refusing to replace installed package {name}")
     binary = Path("/usr/bin/grid9")
     absent(binary)
-    assert run(["dpkg-deb", "-f", package, "Architecture"]).stdout.strip() == "amd64"
+    architecture = run(["dpkg", "--print-architecture"]).stdout.strip()
+    assert architecture in {"amd64", "arm64"}, f"Unsupported test host: {architecture}"
+    assert run(["dpkg-deb", "-f", package, "Architecture"]).stdout.strip() == architecture
     dependencies = run(["dpkg-deb", "-f", package, "Depends"]).stdout
     assert "libc6 (>= 2.35)" in dependencies and "libgcc-s1" in dependencies
     sudo = [] if os.geteuid() == 0 else ["sudo", "-n"]
