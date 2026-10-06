@@ -71,7 +71,9 @@ jobs:
         run: ./packaging/test_windows_path.ps1
       - name: Check uninstaller syntax
         if: runner.os != 'Windows'
-        run: sh -n packaging/macos-uninstall.sh
+        run: |
+          sh -n packaging/macos-uninstall.sh
+          sh -n packaging/linux-postrm.sh
       - name: Check release executable before packaging
         run: python packaging/check_runtime.py
 
@@ -143,6 +145,9 @@ jobs:
         run: python packaging/preflight.py
       - name: Package
         run: cargo packager --release --formats ${{ matrix.formats }}
+      - name: Add Linux removal hook
+        if: runner.os == 'Linux'
+        run: python packaging/finalize_deb.py
       - name: Build macOS CLI installer
         if: runner.os == 'macOS'
         run: python packaging/build_macos_pkg.py
