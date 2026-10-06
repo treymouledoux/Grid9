@@ -52,8 +52,23 @@ def check_linux(root):
     sudo = [] if os.geteuid() == 0 else ["sudo", "-n"]
     environment = dict(os.environ, DEBIAN_FRONTEND="noninteractive")
     run([*sudo, "apt-get", "update", "-qq"], env=environment, timeout=300)
+    account = f"grid9-ci-{os.getpid()}"
+    account_home = root / "test account home ü"
+    root.chmod(0o755)
+    run([*sudo, "useradd", "--create-home", "--home-dir", account_home, account])
+    account_uid = run(["id", "-u", account]).stdout.strip()
+    default_data = account_home / ".local/share/Grid9"
+
+    def user_cli(*args):
+        return run([*sudo, "runuser", "-u", account, "--", "env",
+                    "-u", "GRID9_DATA_DIR", "-u", "XDG_DATA_HOME", binary, *args])
+
     installed = False
     try:
+        control = root / "deb-control"
+        run(["dpkg-deb", "--control", package, control])
+        assert (control / "postrm").read_bytes() == (PROJECT / "packaging/linux-postrm.sh").read_bytes()
+        assert os.access(control / "postrm", os.X_OK)
         for iteration in range(2):
             run([*sudo, "apt-get", "install", "-y", "--reinstall", package], env=environment, timeout=300)
             installed = True
@@ -63,18 +78,44 @@ def check_linux(root):
             assert desktop_files, "Missing desktop entry"
             assert any("documentation" in p.read_text() for p in desktop_files)
             runtime(binary, root, f"linux-{iteration}")
+            user_cli("version")
+            for component in ["documentation", "logs", "preprocessor_cache"]:
+                assert (default_data / component).is_dir()
+            personal_default = default_data / "examples/personal.g9"
+            run([*sudo, "runuser", "-u", account, "--", "sh", "-c",
+                 'printf f7p > "$1"', "fixture", personal_default])
             # Reinstall over an existing package, retaining user files.
             sentinel = root / f"linux-{iteration}/user data ü/examples/personal.g9"
             run([*sudo, "apt-get", "install", "-y", "--reinstall", package], env=environment, timeout=300)
             assert sentinel.read_text() == "f7p"
-            run([*sudo, "apt-get", "purge", "-y", name], env=environment, timeout=120)
+            assert personal_default.read_text() == "f7p"
+            assert (default_data / "documentation/index.html").is_file(), "Upgrade cleaned user data"
+            action = "remove" if iteration == 0 else "purge"
+            run([*sudo, "env", "-u", "GRID9_DATA_DIR", "-u", "XDG_DATA_HOME",
+                 f"SUDO_USER={account}", f"SUDO_UID={account_uid}",
+                 "apt-get", action, "-y", name], env=environment, timeout=120)
             installed = False
             assert not binary.exists()
             assert all(not p.exists() for p in desktop_files)
-            assert sentinel.exists(), "Package removal deleted user data"
+            assert sentinel.exists(), "Package removal deleted a custom data directory"
+            assert personal_default.read_text() == "f7p"
+            for component in ["documentation", "logs", "preprocessor_cache", ".components-revision"]:
+                assert not (default_data / component).exists(), f"Removal left {component}"
+            # Reinstall regenerates the cleaned resources while retaining scripts.
+            run([*sudo, "apt-get", "install", "-y", package], env=environment, timeout=300)
+            installed = True
+            user_cli("version")
+            assert (default_data / "documentation/index.html").is_file()
+            assert personal_default.read_text() == "f7p"
+            run([*sudo, "apt-get", "purge", "-y", name], env=environment, timeout=120)
+            installed = False
+            assert personal_default.exists(), "Unverified removal deleted user data"
     finally:
-        if installed:
-            run([*sudo, "apt-get", "purge", "-y", name], env=environment, check=False, timeout=120)
+        try:
+            if installed:
+                run([*sudo, "apt-get", "purge", "-y", name], env=environment, check=False, timeout=120)
+        finally:
+            run([*sudo, "userdel", "--remove", account], check=False, timeout=30)
 
 
 def check_macos(root):

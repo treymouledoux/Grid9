@@ -74,6 +74,14 @@ Dragging the app to Trash disables the terminal command but leaves its broken sy
 
 Older PKGs did not include the uninstaller; reinstall the current PKG first if `/usr/local/bin/grid9-uninstall` is missing. A DMG-only installation has no terminal integration or uninstaller: move `/Applications/Grid9.app` to Trash to remove it, and delete `~/Library/Application Support/Grid9` separately to purge its user data.
 
+### Linux uninstallation
+
+Run `sudo apt remove grid9` or `sudo apt purge grid9`. In addition to the executable and desktop entry, the Debian removal hook cleans the verified invoking sudo user's generated documentation, logs, preprocessor cache, and component-revision marker. Examples and personal scripts are preserved. Reinstallation restores the generated resources. Upgrades and same-version reinstalls never trigger cleanup.
+
+The hook uses the account's registered home directory, not root's `HOME`, and drops root privileges before touching user files. If `XDG_DATA_HOME` was passed through sudo, it uses that location; otherwise it uses `~/.local/share/Grid9`. For a nondefault XDG location, use `sudo --preserve-env=XDG_DATA_HOME apt remove grid9`. Custom `GRID9_DATA_DIR` directories are left untouched. If removal runs through a GUI, an unattended tool, or a root shell without a verified `SUDO_USER`/`SUDO_UID`, the hook reports that user cleanup was skipped. It does not scan other users' homes. You can remove the generated folders manually in those cases.
+
+CI checks the hook inside the actual Debian package and exercises both remove and purge with a disposable account, including user data cleanup, personal-file preservation, and regeneration on reinstall.
+
 ## User data layout
 
 `file_man.rs` resolves a data directory for the account executing Grid9:
