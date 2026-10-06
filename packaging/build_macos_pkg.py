@@ -13,15 +13,28 @@ def build():
     if platform.machine() != "arm64":
         raise RuntimeError("Grid9 macOS installers support Apple Silicon (arm64) only")
     project = Path(__file__).resolve().parent.parent
-    metadata = json.loads(subprocess.check_output([
-        "cargo", "metadata", "--no-deps", "--offline", "--format-version", "1",
-        "--manifest-path", str(project / "Cargo.toml"),
-    ], text=True))
+    metadata = json.loads(
+        subprocess.check_output(
+            [
+                "cargo",
+                "metadata",
+                "--no-deps",
+                "--offline",
+                "--format-version",
+                "1",
+                "--manifest-path",
+                str(project / "Cargo.toml"),
+            ],
+            text=True,
+        )
+    )
     version = next(p["version"] for p in metadata["packages"] if p["name"] == "grid9")
     packages = project / "target/packages"
     app = packages / "Grid9.app"
     if not app.is_dir():
-        raise RuntimeError("Build Grid9.app with cargo packager --release --formats app first")
+        raise RuntimeError(
+            "Build Grid9.app with cargo packager --release --formats app first"
+        )
     with tempfile.TemporaryDirectory(prefix="grid9-pkg-") as temporary:
         payload = Path(temporary) / "payload"
         destination = payload / "Applications/Grid9.app"
@@ -35,10 +48,15 @@ def build():
         shutil.copy2(project / "packaging/macos-uninstall.sh", uninstaller)
         uninstaller.chmod(0o755)
         uninstall_app = payload / "Applications/Uninstall Grid9.app"
-        subprocess.run([
-            "osacompile", "-o", str(uninstall_app),
-            str(project / "packaging/macos-uninstall.applescript"),
-        ], check=True)
+        subprocess.run(
+            [
+                "osacompile",
+                "-o",
+                str(uninstall_app),
+                str(project / "packaging/macos-uninstall.applescript"),
+            ],
+            check=True,
+        )
         plist_path = uninstall_app / "Contents/Info.plist"
         with plist_path.open("rb") as file:
             uninstall_info = plistlib.load(file)
@@ -46,29 +64,49 @@ def build():
         with plist_path.open("wb") as file:
             plistlib.dump(uninstall_info, file)
         # Updating Info.plist invalidates osacompile's ad-hoc signature.
-        subprocess.run(["codesign", "--force", "--sign", "-", str(uninstall_app)], check=True)
+        subprocess.run(
+            ["codesign", "--force", "--sign", "-", str(uninstall_app)], check=True
+        )
         components = Path(temporary) / "components.plist"
         # Never redirect installation to a build, downloaded, or moved copy.
         with components.open("wb") as file:
-            plistlib.dump([{
-                "RootRelativeBundlePath": "Applications/Grid9.app",
-                "BundleIsRelocatable": False,
-                "BundleIsVersionChecked": False,
-                "BundleOverwriteAction": "upgrade",
-            }, {
-                "RootRelativeBundlePath": "Applications/Uninstall Grid9.app",
-                "BundleIsRelocatable": False,
-                "BundleIsVersionChecked": False,
-                "BundleOverwriteAction": "upgrade",
-            }], file)
+            plistlib.dump(
+                [
+                    {
+                        "RootRelativeBundlePath": "Applications/Grid9.app",
+                        "BundleIsRelocatable": False,
+                        "BundleIsVersionChecked": False,
+                        "BundleOverwriteAction": "upgrade",
+                    },
+                    {
+                        "RootRelativeBundlePath": "Applications/Uninstall Grid9.app",
+                        "BundleIsRelocatable": False,
+                        "BundleIsVersionChecked": False,
+                        "BundleOverwriteAction": "upgrade",
+                    },
+                ],
+                file,
+            )
         output = packages / f"Grid9_{version}_{platform.machine()}.pkg"
-        subprocess.run([
-            "pkgbuild", "--root", str(payload),
-            "--component-plist", str(components),
-            "--identifier", "com.treymouledoux.grid9.installer",
-            "--version", version, "--install-location", "/",
-            "--ownership", "recommended", str(output),
-        ], check=True)
+        subprocess.run(
+            [
+                "pkgbuild",
+                "--root",
+                str(payload),
+                "--component-plist",
+                str(components),
+                "--identifier",
+                "com.treymouledoux.grid9.installer",
+                "--version",
+                version,
+                "--install-location",
+                "/",
+                "--ownership",
+                "recommended",
+                str(output),
+            ],
+            check=True,
+        )
         print(output)
 
 

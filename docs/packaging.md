@@ -18,7 +18,7 @@ If cargo-packager reports `Couldn't detect a valid configuration file`, first co
 | --- | --- | --- |
 | Windows | `cargo packager --release --formats nsis` | NSIS `.exe` installer |
 | macOS (Apple Silicon) | `cargo packager --release --formats app,dmg`, then `python3 packaging/build_macos_pkg.py` | `.pkg` CLI installer, `Grid9.app`, and optional `.dmg` |
-| Linux (x64 and ARM64) | `cargo packager --release --formats deb` | Debian/Ubuntu `.deb` package |
+| Linux (x64 and ARM64) | `cargo packager --release --formats deb`, then `python3 packaging/finalize_deb.py` | Debian/Ubuntu `.deb` package with the removal hook |
 
 The Linux package currently targets Debian-compatible distributions; it is not a universal Linux installer. Use the standalone release executable on other distributions. The Debian package requires `libc6 (>= 2.35)`, `libgcc-s1`, and `xdg-utils` (for opening documentation).
 
@@ -70,7 +70,7 @@ sudo /usr/local/bin/grid9-uninstall
 
 This removes the app, terminal symlink, both uninstallers, package receipt, and the invoking user's entire `~/Library/Application Support/Grid9` folder. This includes documentation, examples, logs, parser cache, and any personal files stored there. It also works after you have already deleted the app. The uninstaller resolves the original user behind `sudo` rather than using root's home directory. Other users' data and custom directories selected with `GRID9_DATA_DIR` are left untouched; remove those separately if needed. Reinstall the updated PKG to replace an older uninstaller that preserved user data or a separate terminal executable used by older installers.
 
-Dragging the app to Trash disables the terminal command but leaves its broken symlink, the uninstaller, the package receipt, and user data. Use the command above to purge these too. The uninstaller requests administrator access through `sudo` and removes itself when finished.
+Dragging the app to Trash disables the terminal command but leaves its broken symlink, the uninstaller, the package receipt, and user data. Use the command above to purge these too. The uninstaller requests administrator access through `sudo`, drops privileges to the selected user before cleaning user data, and removes itself when finished. A symlinked Grid9 data folder is preserved; if user-data cleanup fails, the system installation is left in place so you can fix the permissions and retry.
 
 Older PKGs did not include the uninstaller; reinstall the current PKG first if `/usr/local/bin/grid9-uninstall` is missing. A DMG-only installation has no terminal integration or uninstaller: move `/Applications/Grid9.app` to Trash to remove it, and delete `~/Library/Application Support/Grid9` separately to purge its user data.
 

@@ -1,4 +1,5 @@
 """Embed Grid9's removal hook without changing the pinned packager."""
+
 from pathlib import Path
 import os
 import tempfile
@@ -12,7 +13,7 @@ def finalize(package):
         root = Path(temporary) / "package"
         run(["dpkg-deb", "--raw-extract", package, root], timeout=120)
         hook = root / "DEBIAN/postrm"
-        if hook.exists():
+        if hook.exists() or hook.is_symlink():
             raise RuntimeError("Refusing to overwrite an existing postrm hook")
         hook.write_bytes((PROJECT / "packaging/linux-postrm.sh").read_bytes())
         hook.chmod(0o755)

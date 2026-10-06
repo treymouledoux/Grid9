@@ -12,6 +12,7 @@ from check_runtime import PROJECT, run
 class CleanupTests(unittest.TestCase):
     def setUp(self):
         import pwd
+
         self.temporary = tempfile.TemporaryDirectory(prefix="grid9-cleanup-")
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
@@ -21,7 +22,9 @@ class CleanupTests(unittest.TestCase):
             directory.mkdir(parents=True)
             (directory / "fixture").write_text("keep")
         (self.data / ".components-revision").write_text("fixture")
-        self.account = pwd.getpwnam("nobody") if os.geteuid() == 0 else pwd.getpwuid(os.getuid())
+        self.account = (
+            pwd.getpwnam("nobody") if os.geteuid() == 0 else pwd.getpwuid(os.getuid())
+        )
         if os.geteuid() == 0:
             self.root.chmod(0o755)
             for path in [self.root, *self.root.rglob("*")]:
@@ -31,13 +34,19 @@ class CleanupTests(unittest.TestCase):
                     if error.errno == 22:
                         self.skipTest("Execution host cannot map a non-root UID")
                     raise
-        self.env = dict(os.environ, SUDO_USER=self.account.pw_name,
-                        SUDO_UID=str(self.account.pw_uid), XDG_DATA_HOME=str(self.data.parent))
+        self.env = dict(
+            os.environ,
+            SUDO_USER=self.account.pw_name,
+            SUDO_UID=str(self.account.pw_uid),
+            XDG_DATA_HOME=str(self.data.parent),
+        )
         self.env.pop("GRID9_DATA_DIR", None)
 
     def hook(self, action, **environment):
-        return run(["sh", PROJECT / "packaging/linux-postrm.sh", action],
-                   env=dict(self.env, **environment))
+        return run(
+            ["sh", PROJECT / "packaging/linux-postrm.sh", action],
+            env=dict(self.env, **environment),
+        )
 
     def test_remove_and_purge_delete_entire_data_folder(self):
         for action in ["remove", "purge", "purge"]:

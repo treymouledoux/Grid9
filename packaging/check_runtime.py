@@ -11,11 +11,18 @@ PROJECT = Path(__file__).resolve().parent.parent
 
 def run(command, *, env=None, cwd=None, input=None, check=True, timeout=30):
     result = subprocess.run(
-        command if isinstance(command, str) else [str(arg) for arg in command], env=env, cwd=cwd, input=input,
-        capture_output=True, text=True, timeout=timeout,
+        command if isinstance(command, str) else [str(arg) for arg in command],
+        env=env,
+        cwd=cwd,
+        input=input,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
     )
     if check and result.returncode:
-        raise RuntimeError(f"{command!r} exited {result.returncode}\n{result.stdout}\n{result.stderr}")
+        raise RuntimeError(
+            f"{command!r} exited {result.returncode}\n{result.stdout}\n{result.stderr}"
+        )
     return result
 
 
@@ -51,7 +58,9 @@ def check_runtime(binary, root):
     document.write_text("outdated", encoding="utf-8")
     (data / ".components-revision").write_text("old version", encoding="utf-8")
     cli("version")
-    assert document.read_bytes() == (components / "documentation/index.html").read_bytes()
+    assert (
+        document.read_bytes() == (components / "documentation/index.html").read_bytes()
+    )
     assert custom.read_text(encoding="utf-8") == "f7p"
 
     assert cli("convert", "encode", "a").stdout.strip() == "000000010"
@@ -81,7 +90,9 @@ def check_runtime(binary, root):
     environment["GRID9_DATA_DIR"] = str(root / "first run")
     assert "Hello world" in cli("interpret", "--example", "example1").stdout
     assert (root / "first run/documentation/index.html").is_file()
-    print(f"Verified release CLI, resources, repair, configuration, stdin, errors, and cache: {binary}")
+    print(
+        f"Verified release CLI, resources, repair, configuration, stdin, errors, and cache: {binary}"
+    )
 
 
 def main():

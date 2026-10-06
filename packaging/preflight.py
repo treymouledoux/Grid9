@@ -17,14 +17,24 @@ def validate_tag(tag, version):
 
 def main():
     version = tomllib.loads((PROJECT / "Cargo.toml").read_text())["package"]["version"]
-    tag = os.environ.get("GITHUB_REF_NAME", "") if os.environ.get("GITHUB_REF_TYPE") == "tag" else ""
+    tag = (
+        os.environ.get("GITHUB_REF_NAME", "")
+        if os.environ.get("GITHUB_REF_TYPE") == "tag"
+        else ""
+    )
     validate_tag(tag, version)
-    actual = subprocess.check_output(["cargo", "packager", "--version"], text=True).strip()
+    actual = subprocess.check_output(
+        ["cargo", "packager", "--version"],
+        text=True,
+        timeout=30,
+    ).strip()
     expected = os.environ.get("PACKAGER_VERSION", "0.11.8")
-    if actual.split()[-1] != expected:
+    if not actual.split() or actual.split()[-1] != expected:
         raise RuntimeError(f"Expected cargo-packager {expected}, found {actual!r}")
     # Never accidentally upload an older artifact restored with a build cache.
-    shutil.rmtree(PROJECT / "target/packages", ignore_errors=True)
+    packages = PROJECT / "target/packages"
+    if packages.exists():
+        shutil.rmtree(packages)
     if sys.platform == "win32":
         # This sidecar may be absent after restoring a Cargo build cache even
         # when build.rs itself is up to date. Always stage it before packaging.
