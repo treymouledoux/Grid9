@@ -102,18 +102,17 @@ def check_linux(root):
             assert not binary.exists()
             assert all(not p.exists() for p in desktop_files)
             assert sentinel.exists(), "Package removal deleted a custom data directory"
-            assert personal_default.read_text() == "f7p"
-            for component in ["documentation", "logs", "preprocessor_cache", ".components-revision"]:
-                assert not (default_data / component).exists(), f"Removal left {component}"
-            # Reinstall regenerates the cleaned resources while retaining scripts.
+            assert not default_data.exists(), "Removal left the Grid9 data folder"
+            # Reinstall regenerates bundled resources, not deleted personal scripts.
             run([*sudo, "apt-get", "install", "-y", package], env=environment, timeout=300)
             installed = True
             user_cli("version")
             assert (default_data / "documentation/index.html").is_file()
-            assert personal_default.read_text() == "f7p"
-            run([*sudo, "apt-get", "purge", "-y", name], env=environment, timeout=120)
+            assert not personal_default.exists()
+            run([*sudo, "env", "-u", "SUDO_USER", "-u", "SUDO_UID",
+                 "apt-get", "purge", "-y", name], env=environment, timeout=120)
             installed = False
-            assert personal_default.exists(), "Unverified removal deleted user data"
+            assert (default_data / "documentation/index.html").exists(), "Unverified removal deleted user data"
     finally:
         try:
             if installed:

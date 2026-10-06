@@ -20,11 +20,8 @@ cleanup='
 set -eu
 data=$1/Grid9
 [ ! -L "$data" ] || { echo "Grid9: skipping symlinked data directory." >&2; exit 0; }
-for component in documentation logs preprocessor_cache; do
-    rm -rf -- "$data/$component"
-done
-rm -f -- "$data/.components-revision"
-echo "Grid9: removed generated documentation, logs, and cache; examples and personal files preserved."
+rm -rf -- "$data"
+echo "Grid9: removed the entire user data folder, including examples and personal files."
 '
 if [ "$(id -u)" = 0 ]; then
     # postrm must also work after dependencies have been removed on purge.

@@ -39,14 +39,17 @@ class CleanupTests(unittest.TestCase):
         return run(["sh", PROJECT / "packaging/linux-postrm.sh", action],
                    env=dict(self.env, **environment))
 
-    def test_remove_and_purge_clean_generated_data_only(self):
+    def test_remove_and_purge_delete_entire_data_folder(self):
         for action in ["remove", "purge", "purge"]:
+            # Repopulate for each action, including unknown future components.
+            self.data.mkdir(parents=True, exist_ok=True)
+            (self.data / "personal-file").write_text("remove")
+            if os.geteuid() == 0:
+                os.chown(self.data, self.account.pw_uid, self.account.pw_gid)
             self.hook(action)
-            self.assertFalse((self.data / "documentation").exists())
-            self.assertFalse((self.data / "logs").exists())
-            self.assertFalse((self.data / "preprocessor_cache").exists())
-            self.assertFalse((self.data / ".components-revision").exists())
-            self.assertEqual((self.data / "examples/fixture").read_text(), "keep")
+            self.assertFalse(self.data.exists())
+            self.assertTrue(self.data.parent.exists())
+            self.hook(action)  # Repeated cleanup is harmless.
 
     def test_upgrade_unverified_and_custom_directories_are_preserved(self):
         for action in ["upgrade", "failed-upgrade", "abort-install", "disappear"]:
