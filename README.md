@@ -10,8 +10,6 @@ The current implementation is on `main`. For changes from the legacy Nim impleme
 
 See the [releases page](https://github.com/treymouledoux/Grid9/releases) for available binaries. Check the release version: older releases use the legacy Nim implementation.
 
-Linux Debian/Ubuntu packages are available for **x64 (`amd64`) and ARM64 (`arm64`)**. Choose the package matching `dpkg --print-architecture`; ARM64 works natively in an ARM64 Linux VM on Apple Silicon. Windows builds target x64; macOS builds target Apple Silicon.
-
 On macOS (Apple Silicon), use the `.pkg` installer for terminal access. If macOS blocks the trusted downloaded installer, remove its quarantine attribute, then open it. Replace the path below with your downloaded `.pkg` filename:
 
 ```sh
