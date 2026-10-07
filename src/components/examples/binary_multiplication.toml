@@ -1,0 +1,13 @@
+[metadata]
+author = "treymouledoux"
+description = "Prompts for and multiplies two four-bit inputs using repeated addition and iterative binary carry propagation, then displays binary and decimal results."
+version = "1.4.0"
+show_metadata = false
+min_grid9_ver = "2026.1.0"
+
+[config]
+advanced_preprocess = true
+dont_cache = false
+echo_grid_mod = false
+no_log = true
+verbosity = 0

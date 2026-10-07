@@ -1,0 +1,987 @@
+BINARY MULTIPLICATION OF TWO FOUR BIT UNSIGNED INPUTS
+ENTER EACH INPUT AS NINE BINARY DIGITS WITH FIVE LEADING ZEROS
+SAVED ZERO ACCUMULATOR ONE MULTIPLICAND TWO MULTIPLIER
+SAVED THREE CARRY FOUR PARTIAL SUM FIVE INTERSECTION SIX SHIFT
+PRINT INPUT PROMPT USING THE GLYPH QUEUE
+a0
+f3
+f8
+qs
+f3
+f5
+f7
+f8
+qs
+f4
+f5
+f8
+qs
+f6
+f7
+f8
+qs
+f8
+qs
+f4
+f6
+f8
+qs
+f5
+f7
+qs
+f6
+f8
+qs
+f4
+f5
+f6
+f7
+qs
+f6
+f7
+f8
+qs
+f7
+f8
+qs
+f2
+f4
+f8
+qs
+f2
+f6
+qs
+f5
+f6
+f7
+f8
+qs
+f6
+f8
+qs
+f6
+f8
+qs
+f5
+f8
+qs
+f6
+f7
+qs
+f7
+f8
+qs
+f5
+f8
+qs
+f4
+f5
+f6
+f7
+f8
+qs
+f8
+qs
+f2
+f4
+f6
+f8
+qs
+f2
+f8
+qs
+f3
+f4
+f6
+f7
+qs
+qs
+qs
+qs
+qs
+qs
+qs
+qs
+qs
+f3
+f4
+f6
+f7
+qs
+f4
+f6
+f8
+qs
+f6
+f8
+qs
+f4
+qs
+f3
+f4
+f6
+f7
+qs
+qs
+qs
+qs
+qs
+f8
+qs
+qs
+qs
+qs
+p
+gg
+gs1
+PRINT INPUT PROMPT USING THE GLYPH QUEUE
+a0
+f3
+f5
+f6
+f7
+qs
+f3
+f5
+qs
+f7
+qs
+f4
+f6
+qs
+f4
+f5
+f6
+f7
+f8
+qs
+f5
+f7
+qs
+f6
+f8
+qs
+f5
+f7
+qs
+f6
+f8
+qs
+f4
+f5
+f6
+f7
+qs
+f6
+f7
+f8
+qs
+f7
+f8
+qs
+f2
+f4
+f8
+qs
+f2
+f6
+qs
+f5
+f6
+f7
+f8
+qs
+f6
+f8
+qs
+f6
+f8
+qs
+f5
+f8
+qs
+f6
+f7
+qs
+f7
+f8
+qs
+f5
+f8
+qs
+f4
+f5
+f6
+f7
+f8
+qs
+f8
+qs
+f2
+f4
+f6
+f8
+qs
+f2
+f8
+qs
+f3
+f4
+f6
+f7
+qs
+qs
+qs
+qs
+qs
+qs
+qs
+qs
+qs
+f3
+f4
+f6
+f7
+qs
+f4
+f6
+f8
+qs
+f6
+f8
+qs
+f4
+qs
+f3
+f4
+f6
+f7
+qs
+qs
+qs
+qs
+qs
+f8
+qs
+qs
+qs
+qs
+p
+gg
+gs2
+REJECT INPUTS OUTSIDE THE FOUR BIT RANGE
+gl1
+i0=1|1=1|2=1|3=1|4=1
+    t
+}
+gl2
+i0=1|1=1|2=1|3=1|4=1
+    t
+}
+a0
+gs0
+gl2
+w5=1|6=1|7=1|8=1
+    gl1
+    gs3
+    REPEAT XOR SUM AND SHIFTED INTERSECTION UNTIL NO CARRY
+    w0=1|1=1|2=1|3=1|4=1|5=1|6=1|7=1|8=1
+        gl0
+        gx3
+        gs4
+        gl0
+        gm3
+        gx4
+        gs5
+        a0
+        gs6
+        gl5
+        i1=1
+            gl6
+            s01
+            gs6
+        }
+        gl5
+        i2=1
+            gl6
+            s11
+            gs6
+        }
+        gl5
+        i3=1
+            gl6
+            s21
+            gs6
+        }
+        gl5
+        i4=1
+            gl6
+            s31
+            gs6
+        }
+        gl5
+        i5=1
+            gl6
+            s41
+            gs6
+        }
+        gl5
+        i6=1
+            gl6
+            s51
+            gs6
+        }
+        gl5
+        i7=1
+            gl6
+            s61
+            gs6
+        }
+        gl5
+        i8=1
+            gl6
+            s71
+            gs6
+        }
+        gl4
+        gs0
+        gl6
+        gs3
+    ]
+    DECREMENT MULTIPLIER WITH BORROW PROPAGATION
+    gl2
+    f8
+    i8=1
+        f7
+        i7=1
+            f6
+            i6=1
+                f5
+            }
+        }
+    }
+    gs2
+]
+QUEUE OUTPUT LABEL BEFORE THE PRODUCT
+a0
+f3
+f5
+f7
+qs
+f3
+f4
+f5
+f6
+qs
+f7
+f8
+qs
+f6
+qs
+f6
+f7
+f8
+qs
+f7
+f8
+qs
+f2
+f4
+f8
+qs
+f2
+f6
+qs
+PRINT THE SAVED WORD AS NINE BINARY DIGITS
+gl0
+i0=0
+    a0
+    s31
+    s41
+    s61
+    s71
+    qs
+}
+gl0
+i0=1
+    a0
+    s31
+    s41
+    s61
+    s71
+    s81
+    qs
+}
+gl0
+i1=0
+    a0
+    s31
+    s41
+    s61
+    s71
+    qs
+}
+gl0
+i1=1
+    a0
+    s31
+    s41
+    s61
+    s71
+    s81
+    qs
+}
+gl0
+i2=0
+    a0
+    s31
+    s41
+    s61
+    s71
+    qs
+}
+gl0
+i2=1
+    a0
+    s31
+    s41
+    s61
+    s71
+    s81
+    qs
+}
+gl0
+i3=0
+    a0
+    s31
+    s41
+    s61
+    s71
+    qs
+}
+gl0
+i3=1
+    a0
+    s31
+    s41
+    s61
+    s71
+    s81
+    qs
+}
+gl0
+i4=0
+    a0
+    s31
+    s41
+    s61
+    s71
+    qs
+}
+gl0
+i4=1
+    a0
+    s31
+    s41
+    s61
+    s71
+    s81
+    qs
+}
+gl0
+i5=0
+    a0
+    s31
+    s41
+    s61
+    s71
+    qs
+}
+gl0
+i5=1
+    a0
+    s31
+    s41
+    s61
+    s71
+    s81
+    qs
+}
+gl0
+i6=0
+    a0
+    s31
+    s41
+    s61
+    s71
+    qs
+}
+gl0
+i6=1
+    a0
+    s31
+    s41
+    s61
+    s71
+    s81
+    qs
+}
+gl0
+i7=0
+    a0
+    s31
+    s41
+    s61
+    s71
+    qs
+}
+gl0
+i7=1
+    a0
+    s31
+    s41
+    s61
+    s71
+    s81
+    qs
+}
+gl0
+i8=0
+    a0
+    s31
+    s41
+    s61
+    s71
+    qs
+}
+gl0
+i8=1
+    a0
+    s31
+    s41
+    s61
+    s71
+    s81
+    qs
+}
+p
+
+CONVERT A COPY OF THE PRODUCT TO THREE DECIMAL DIGITS
+SAVED ONE ONES TWO TENS THREE HUNDREDS FOUR PRINT FLAG SIX REMAINING
+a0
+gs1
+gs2
+gs3
+gs4
+gl0
+gs6
+w0=1|1=1|2=1|3=1|4=1|5=1|6=1|7=1|8=1
+    DECREMENT THE REMAINING BINARY VALUE
+    f8
+    i8=1
+        f7
+        i7=1
+            f6
+            i6=1
+                f5
+                i5=1
+                    f4
+                    i4=1
+                        f3
+                        i3=1
+                            f2
+                            i2=1
+                                f1
+                                i1=1
+                                    f0
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    gs6
+    INCREMENT ONES AND PROPAGATE DECIMAL CARRIES
+    gl1
+    f8
+    i8=0
+        f7
+        i7=0
+            f6
+            i6=0
+                f5
+            }
+        }
+    }
+    gs1
+    i5=1&6=0&7=1&8=0
+        a0
+        gs1
+        gl2
+        f8
+        i8=0
+            f7
+            i7=0
+                f6
+                i6=0
+                    f5
+                }
+            }
+        }
+        gs2
+        i5=1&6=0&7=1&8=0
+            a0
+            gs2
+            gl3
+            f8
+            i8=0
+                f7
+                i7=0
+                    f6
+                    i6=0
+                        f5
+                    }
+                }
+            }
+            gs3
+        }
+    }
+    gl6
+]
+QUEUE DECIMAL LABEL
+a0
+f4
+f5
+f6
+f7
+f8
+qs
+f4
+f5
+f8
+qs
+f7
+qs
+f5
+f6
+f7
+qs
+f6
+qs
+f5
+f6
+qs
+f5
+f6
+f7
+f8
+qs
+f2
+f5
+f8
+qs
+f2
+f6
+qs
+OMIT LEADING ZERO HUNDREDS AND REMEMBER IF A DIGIT WAS PRINTED
+gl3
+i5=1|6=1|7=1|8=1
+    a0
+    s01
+    gs4
+    gl3
+    i5=0&6=0&7=0&8=0
+        a0
+        s31
+        s41
+        s61
+        s71
+        qs
+    }
+    gl3
+    i5=0&6=0&7=0&8=1
+        a0
+        s31
+        s41
+        s61
+        s71
+        s81
+        qs
+    }
+    gl3
+    i5=0&6=0&7=1&8=0
+        a0
+        s31
+        s41
+        s51
+        qs
+    }
+    gl3
+    i5=0&6=0&7=1&8=1
+        a0
+        s31
+        s41
+        s51
+        s81
+        qs
+    }
+    gl3
+    i5=0&6=1&7=0&8=0
+        a0
+        s31
+        s41
+        s51
+        s71
+        qs
+    }
+    gl3
+    i5=0&6=1&7=0&8=1
+        a0
+        s31
+        s41
+        s51
+        s71
+        s81
+        qs
+    }
+    gl3
+    i5=0&6=1&7=1&8=0
+        a0
+        s31
+        s41
+        s51
+        s61
+        qs
+    }
+    gl3
+    i5=0&6=1&7=1&8=1
+        a0
+        s31
+        s41
+        s51
+        s61
+        s81
+        qs
+    }
+    gl3
+    i5=1&6=0&7=0&8=0
+        a0
+        s31
+        s41
+        s51
+        s61
+        s71
+        qs
+    }
+    gl3
+    i5=1&6=0&7=0&8=1
+        a0
+        s31
+        s41
+        s51
+        s61
+        s71
+        s81
+        qs
+    }
+}
+PRINT TENS IF NONZERO OR IF HUNDREDS WERE PRINTED
+gl2
+gm4
+i0=1|5=1|6=1|7=1|8=1
+    gl2
+    i5=0&6=0&7=0&8=0
+        a0
+        s31
+        s41
+        s61
+        s71
+        qs
+    }
+    gl2
+    i5=0&6=0&7=0&8=1
+        a0
+        s31
+        s41
+        s61
+        s71
+        s81
+        qs
+    }
+    gl2
+    i5=0&6=0&7=1&8=0
+        a0
+        s31
+        s41
+        s51
+        qs
+    }
+    gl2
+    i5=0&6=0&7=1&8=1
+        a0
+        s31
+        s41
+        s51
+        s81
+        qs
+    }
+    gl2
+    i5=0&6=1&7=0&8=0
+        a0
+        s31
+        s41
+        s51
+        s71
+        qs
+    }
+    gl2
+    i5=0&6=1&7=0&8=1
+        a0
+        s31
+        s41
+        s51
+        s71
+        s81
+        qs
+    }
+    gl2
+    i5=0&6=1&7=1&8=0
+        a0
+        s31
+        s41
+        s51
+        s61
+        qs
+    }
+    gl2
+    i5=0&6=1&7=1&8=1
+        a0
+        s31
+        s41
+        s51
+        s61
+        s81
+        qs
+    }
+    gl2
+    i5=1&6=0&7=0&8=0
+        a0
+        s31
+        s41
+        s51
+        s61
+        s71
+        qs
+    }
+    gl2
+    i5=1&6=0&7=0&8=1
+        a0
+        s31
+        s41
+        s51
+        s61
+        s71
+        s81
+        qs
+    }
+}
+ALWAYS PRINT ONES INCLUDING A ZERO PRODUCT
+gl1
+i5=0&6=0&7=0&8=0
+    a0
+    s31
+    s41
+    s61
+    s71
+    qs
+}
+gl1
+i5=0&6=0&7=0&8=1
+    a0
+    s31
+    s41
+    s61
+    s71
+    s81
+    qs
+}
+gl1
+i5=0&6=0&7=1&8=0
+    a0
+    s31
+    s41
+    s51
+    qs
+}
+gl1
+i5=0&6=0&7=1&8=1
+    a0
+    s31
+    s41
+    s51
+    s81
+    qs
+}
+gl1
+i5=0&6=1&7=0&8=0
+    a0
+    s31
+    s41
+    s51
+    s71
+    qs
+}
+gl1
+i5=0&6=1&7=0&8=1
+    a0
+    s31
+    s41
+    s51
+    s71
+    s81
+    qs
+}
+gl1
+i5=0&6=1&7=1&8=0
+    a0
+    s31
+    s41
+    s51
+    s61
+    qs
+}
+gl1
+i5=0&6=1&7=1&8=1
+    a0
+    s31
+    s41
+    s51
+    s61
+    s81
+    qs
+}
+gl1
+i5=1&6=0&7=0&8=0
+    a0
+    s31
+    s41
+    s51
+    s61
+    s71
+    qs
+}
+gl1
+i5=1&6=0&7=0&8=1
+    a0
+    s31
+    s41
+    s51
+    s61
+    s71
+    s81
+    qs
+}
+p
+t
