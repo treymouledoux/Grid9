@@ -1,0 +1,967 @@
+UNSIGNED NINE BIT DIVISION WITH QUOTIENT AND REMAINDER
+SAVED ZERO REMAINDER ONE DIVISOR TWO QUOTIENT
+SAVED THREE DIFFERENCE FOUR COMPARISON FIVE HANDLED SIX SUBTRACTION COUNTER
+a0
+f4
+f5
+f6
+f7
+f8
+qs
+f4
+f6
+f8
+qs
+f4
+f5
+f6
+f8
+qs
+f4
+f5
+f6
+f8
+qs
+f5
+f6
+f7
+f8
+qs
+f7
+f8
+qs
+f5
+f8
+qs
+f5
+f7
+qs
+f2
+f8
+qs
+f2
+f6
+qs
+f5
+f6
+f7
+f8
+qs
+f6
+f8
+qs
+f6
+f8
+qs
+f5
+f8
+qs
+f6
+f7
+qs
+f7
+f8
+qs
+f5
+f8
+qs
+f4
+f5
+f6
+f7
+f8
+qs
+f8
+qs
+f4
+f6
+qs
+f2
+f5
+f7
+qs
+f2
+f3
+f4
+f5
+f6
+qs
+f2
+f3
+f4
+qs
+f2
+f3
+f4
+f5
+f6
+f8
+qs
+f5
+f6
+qs
+qs
+f2
+f3
+f4
+f5
+f6
+qs
+p
+gg
+gs0
+a0
+f4
+f5
+f6
+f7
+f8
+qs
+f4
+f6
+f8
+qs
+f4
+f5
+f6
+f8
+qs
+f4
+f5
+f6
+f8
+qs
+f4
+f5
+f6
+f7
+qs
+f6
+qs
+f7
+f8
+qs
+f2
+f4
+f6
+f7
+f8
+qs
+f2
+f6
+qs
+f5
+f6
+f7
+f8
+qs
+f6
+f8
+qs
+f6
+f8
+qs
+f5
+f8
+qs
+f6
+f7
+qs
+f7
+f8
+qs
+f5
+f8
+qs
+f4
+f5
+f6
+f7
+f8
+qs
+f8
+qs
+f4
+f6
+qs
+f2
+f5
+f7
+qs
+f2
+f3
+f4
+f5
+f6
+f8
+qs
+f2
+f3
+f4
+f8
+qs
+f2
+f3
+f4
+f5
+f6
+f8
+qs
+f5
+f6
+qs
+qs
+f2
+f3
+f4
+f5
+f6
+qs
+p
+gg
+i0=0&1=0&2=0&3=0&4=0&5=0&6=0&7=0&8=0
+    a0
+    f4
+    f5
+    f6
+    f7
+    qs
+    f4
+    f5
+    f6
+    qs
+    f5
+    f6
+    f8
+    qs
+    qs
+    f4
+    f5
+    f6
+    f7
+    f8
+    qs
+    f6
+    f8
+    qs
+    f4
+    f6
+    f8
+    qs
+    f6
+    f8
+    qs
+    f5
+    f6
+    f7
+    f8
+    qs
+    f4
+    f5
+    f6
+    f8
+    qs
+    f4
+    f5
+    f6
+    f8
+    qs
+    f5
+    f6
+    f7
+    f8
+    qs
+    f7
+    f8
+    qs
+    f6
+    f7
+    qs
+    f7
+    f8
+    qs
+    f4
+    f5
+    f8
+    qs
+    f4
+    f5
+    f7
+    qs
+    f4
+    f5
+    f7
+    f8
+    qs
+    f4
+    f5
+    f6
+    f8
+    qs
+    f4
+    f6
+    f8
+    qs
+    f7
+    f8
+    qs
+    f2
+    f4
+    qs
+    p
+    t
+}
+gs1
+a0
+gs2
+w0=0|0=1
+    COMPARE UNSIGNED WORDS FROM MOST SIGNIFICANT CELL
+    a0
+    s81
+    gs4
+    a0
+    gs5
+    gl0
+    gx1
+    gs3
+    gl5
+    i0=0
+        gl3
+        i0=1
+            gl5
+            s01
+            gs5
+            gl0
+            i0=0
+                a0
+                gs4
+            }
+        }
+    }
+    gl5
+    i0=0
+        gl3
+        i1=1
+            gl5
+            s01
+            gs5
+            gl0
+            i1=0
+                a0
+                gs4
+            }
+        }
+    }
+    gl5
+    i0=0
+        gl3
+        i2=1
+            gl5
+            s01
+            gs5
+            gl0
+            i2=0
+                a0
+                gs4
+            }
+        }
+    }
+    gl5
+    i0=0
+        gl3
+        i3=1
+            gl5
+            s01
+            gs5
+            gl0
+            i3=0
+                a0
+                gs4
+            }
+        }
+    }
+    gl5
+    i0=0
+        gl3
+        i4=1
+            gl5
+            s01
+            gs5
+            gl0
+            i4=0
+                a0
+                gs4
+            }
+        }
+    }
+    gl5
+    i0=0
+        gl3
+        i5=1
+            gl5
+            s01
+            gs5
+            gl0
+            i5=0
+                a0
+                gs4
+            }
+        }
+    }
+    gl5
+    i0=0
+        gl3
+        i6=1
+            gl5
+            s01
+            gs5
+            gl0
+            i6=0
+                a0
+                gs4
+            }
+        }
+    }
+    gl5
+    i0=0
+        gl3
+        i7=1
+            gl5
+            s01
+            gs5
+            gl0
+            i7=0
+                a0
+                gs4
+            }
+        }
+    }
+    gl5
+    i0=0
+        gl3
+        i8=1
+            gl5
+            s01
+            gs5
+            gl0
+            i8=0
+                a0
+                gs4
+            }
+        }
+    }
+    gl4
+    i8=0
+        e
+    }
+    SUBTRACT BY DECREMENTING A COPY OF THE SUBTRAHEND
+    gl1
+    gs6
+    w0=1|1=1|2=1|3=1|4=1|5=1|6=1|7=1|8=1
+        gl0
+        f8
+        i8=1
+            f7
+            i7=1
+                f6
+                i6=1
+                    f5
+                    i5=1
+                        f4
+                        i4=1
+                            f3
+                            i3=1
+                                f2
+                                i2=1
+                                    f1
+                                    i1=1
+                                        f0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        gs0
+        gl6
+        f8
+        i8=1
+            f7
+            i7=1
+                f6
+                i6=1
+                    f5
+                    i5=1
+                        f4
+                        i4=1
+                            f3
+                            i3=1
+                                f2
+                                i2=1
+                                    f1
+                                    i1=1
+                                        f0
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        gs6
+    ]
+    gl2
+    f8
+    i8=0
+        f7
+        i7=0
+            f6
+            i6=0
+                f5
+                i5=0
+                    f4
+                    i4=0
+                        f3
+                        i3=0
+                            f2
+                            i2=0
+                                f1
+                                i1=0
+                                    f0
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    gs2
+]
+a0
+f3
+f5
+f6
+qs
+f3
+f4
+f5
+f7
+qs
+f6
+f7
+qs
+f6
+f8
+qs
+f4
+f5
+f6
+f7
+f8
+qs
+f5
+f6
+qs
+f5
+f8
+qs
+f4
+f5
+f7
+qs
+f2
+f4
+f8
+qs
+f2
+f6
+qs
+gl2
+i0=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl2
+i0=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl2
+i1=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl2
+i1=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl2
+i2=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl2
+i2=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl2
+i3=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl2
+i3=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl2
+i4=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl2
+i4=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl2
+i5=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl2
+i5=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl2
+i6=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl2
+i6=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl2
+i7=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl2
+i7=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl2
+i8=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl2
+i8=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+p
+a0
+f3
+f5
+f6
+f8
+qs
+f3
+f5
+f7
+f8
+qs
+f5
+qs
+f5
+f6
+qs
+f5
+qs
+f6
+f8
+qs
+f5
+f7
+qs
+f7
+f8
+qs
+f4
+f6
+f8
+qs
+f2
+f4
+f6
+f7
+f8
+qs
+f2
+f6
+qs
+gl0
+i0=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl0
+i0=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl0
+i1=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl0
+i1=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl0
+i2=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl0
+i2=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl0
+i3=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl0
+i3=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl0
+i4=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl0
+i4=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl0
+i5=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl0
+i5=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl0
+i6=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl0
+i6=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl0
+i7=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl0
+i7=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+gl0
+i8=0
+    a0
+    f3
+    f4
+    f6
+    f7
+    qs
+}
+gl0
+i8=1
+    a0
+    f3
+    f4
+    f6
+    f7
+    f8
+    qs
+}
+p
+t
