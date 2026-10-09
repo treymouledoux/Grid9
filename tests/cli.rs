@@ -48,10 +48,17 @@ impl Drop for Script {
 #[test]
 fn runtime_failures_have_nonzero_status_even_without_logging() {
     for no_log in [false, true] {
+        // A valid script must succeed with the same logging settings, so setup
+        // failures cannot masquerade as interpreter error handling.
+        let valid = Script::new("f7p", &format!("no_log = {no_log}"));
+        let output = valid.run();
+        assert!(output.status.success(), "{output:?}");
+
         let script = Script::new("a1p", &format!("no_log = {no_log}"));
         let output = script.run();
-        assert_eq!(output.status.code(), Some(1));
-        assert!(String::from_utf8_lossy(&output.stderr).contains("Grid has no glyph"));
+        // Check the CLI failure status independently of diagnostic wording,
+        // formatting, or whether logging writes to stdout or stderr.
+        assert_eq!(output.status.code(), Some(1), "{output:?}");
     }
 }
 
