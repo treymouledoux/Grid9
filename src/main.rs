@@ -62,7 +62,7 @@ enum Command {
 fn main() {
     let cli = Cli::parse();
     if let Err(error) = initialize() {
-        eprintln!("Failed to initialize Grid9 data directory: {error}");
+        logf!(Error, "Failed to initialize Grid9 data directory: {error}");
         std::process::exit(1);
     }
     set_logging_path(LOG_DIR.to_str().expect("Failed to get logging dir"));
@@ -170,7 +170,7 @@ fn main() {
 
                 let preprocessed_code = preprocess(&PathBuf::from(path), cfg.clone());
                 if let Err(error) = interpret(&preprocessed_code, cfg) {
-                    eprintln!("Interpreter error: {error}");
+                    logf!(Error, "Interpreter error: {error}");
                     std::process::exit(1);
                 }
             } else {
