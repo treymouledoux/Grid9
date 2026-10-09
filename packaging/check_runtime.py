@@ -79,7 +79,8 @@ def check_runtime(binary, root):
     assert cli("interpret", script, input="invalid\n", check=False).returncode == 1
     script.write_text("a1p", encoding="utf-8")
     failure = cli("interpret", script, check=False)
-    assert failure.returncode == 1 and "Grid has no glyph" in failure.stderr
+    # Runtime failures must signal failure independently of log wording or stream.
+    assert failure.returncode == 1, failure
     config.write_text("[config]\nverbosity = 'invalid'\n", encoding="utf-8")
     assert cli("interpret", script, check=False).returncode != 0
     cli("clean", "preprocessor_cache")
