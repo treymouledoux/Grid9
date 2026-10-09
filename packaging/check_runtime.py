@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import tomllib
 
 PROJECT = Path(__file__).resolve().parent.parent
 
@@ -28,6 +29,7 @@ def run(command, *, env=None, cwd=None, input=None, check=True, timeout=30):
 
 def check_runtime(binary, root):
     binary = Path(binary).resolve()
+    version = tomllib.loads((PROJECT / "Cargo.toml").read_text())["package"]["version"]
     data = root / "user data ü"
     environment = dict(os.environ, GRID9_DATA_DIR=str(data))
 
@@ -37,7 +39,8 @@ def check_runtime(binary, root):
     for flag in ["--help", "--version"]:
         assert cli(flag).stdout
     assert not data.exists(), "Help/version flags should not initialize user data"
-    assert "Version:" in cli("version").stdout
+    assert cli("--version").stdout.strip() == f"Grid9 {version}"
+    assert cli("version").stdout.strip() == f"Version: {version}"
     for directory in ["logs", "preprocessor_cache"]:
         assert (data / directory).is_dir()
         assert not list((data / directory).iterdir())

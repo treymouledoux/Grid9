@@ -1,0 +1,4 @@
+Grid9 2026.2 release features
+[ ] Clean command removes old parser cache and remove the v2 for cached items
+[ ] Improve advanced preprocess optimizations
+[ ] Add file association and file open arg support

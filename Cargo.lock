@@ -266,7 +266,7 @@ dependencies = [
 
 [[package]]
 name = "grid9"
-version = "2026.1.0"
+version = "2026.1.1"
 dependencies = [
  "clap",
  "dirs",

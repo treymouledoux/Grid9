@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import tomllib
 import unittest
 from unittest.mock import patch
 from urllib.parse import unquote, urlsplit
@@ -35,7 +36,8 @@ class PackagingTests(unittest.TestCase):
     def test_preflight_refuses_to_continue_after_stale_output_cleanup_fails(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            (root / "Cargo.toml").write_text('[package]\nversion = "2026.1.0"\n')
+            version = tomllib.loads((PROJECT / "Cargo.toml").read_text())["package"]["version"]
+            (root / "Cargo.toml").write_text(f'[package]\nversion = "{version}"\n')
             (root / "target/packages").mkdir(parents=True)
             with (
                 patch("preflight.PROJECT", root),
@@ -67,11 +69,16 @@ class PackagingTests(unittest.TestCase):
         )
 
     def test_release_tag_must_match_cargo_version(self):
-        validate_tag("", "2026.1.0")
-        validate_tag("v2026.1.0", "2026.1.0")
-        for tag in ["v2026.2.0", "2026.1.0", "v2026.1.0-extra"]:
-            with self.assertRaises(ValueError):
-                validate_tag(tag, "2026.1.0")
+        current = tomllib.loads((PROJECT / "Cargo.toml").read_text())["package"]["version"]
+        for version in sorted({current, "2026.1.0", "2026.1.1", "2027.2.3"}):
+            with self.subTest(version=version):
+                validate_tag("", version)
+                validate_tag(f"v{version}", version)
+                major, minor, patch_version = map(int, version.split("."))
+                wrong_patch = f"v{major}.{minor}.{patch_version + 1}"
+                for tag in [wrong_patch, version, f"v{version}-extra"]:
+                    with self.subTest(tag=tag), self.assertRaises(ValueError):
+                        validate_tag(tag, version)
 
     def test_release_requires_both_linux_architectures(self):
         paths = [

@@ -1,6 +1,6 @@
 [package]
 name = "grid9"
-version = "2026.1.0"
+version = "2026.1.1"
 edition = "2024"
 description = "An interpreted language based on a 3x3 grid of binary cells"
 authors = ["Trey Mouledoux"]
